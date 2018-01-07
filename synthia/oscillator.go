@@ -6,6 +6,7 @@ type WaveShape int
 
 const (
 	SINE = iota
+	SQUARE
 )
 
 type Oscillator struct {
@@ -52,21 +53,40 @@ func (o *Oscillator) ChangeFrequency(freq float64) {
 
 func (o *Oscillator) sine(p []float64) {
 	nbOfSamples := len(p)
+	volFactor := float64(o.Volume) / float64(math.MaxUint8)
 
 	for i := 0; i < nbOfSamples; i++ {
 		o.phase += o.radians
 		sin := math.Sin(o.phase)
-		volFactor := float64(o.Volume) / float64(math.MaxUint8)
 
 		p[i] = sin * volFactor * math.MaxUint16 / 2
 	}
 
 }
 
+func (o *Oscillator) square(p []float64) {
+	nbOfSamples := len(p)
+
+	var wv float64
+	volFactor := float64(o.Volume) / float64(math.MaxUint8)
+
+	for i := 0; i < nbOfSamples; i++ {
+		o.phase += o.radians
+		if math.Sin(o.phase) > 0 {
+			wv = math.MaxUint16
+		} else {
+			wv = 0
+		}
+		p[i] = wv * volFactor
+	}
+}
+
 func (o *Oscillator) Stream(p []float64) (int, error) {
 	switch o.shape {
 	case SINE:
 		o.sine(p)
+	case SQUARE:
+		o.square(p)
 	}
 
 	return len(p), nil
