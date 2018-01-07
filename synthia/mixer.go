@@ -23,7 +23,6 @@ func (m *Mixer) Stream(p []float64) (int, error) {
 
 		buf := make([]float64, len(p))
 		s.Stream(buf)
-		// fmt.Printf("%d --- %v\n", j, buf)
 
 		for i := 0; i < len(p); i++ {
 			x := p[i] + buf[i]

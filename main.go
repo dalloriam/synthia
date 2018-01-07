@@ -7,9 +7,8 @@ import (
 )
 
 func main() {
-	sine1 := synthia.NewSine(261.6)
-	sine2 := synthia.NewSine(329.6)
-	sine3 := synthia.NewSine(392.0)
+
+	osc1 := synthia.NewOscillator(261.6, synthia.SINE)
 
 	speaker, err := synthia.NewSpeaker(44100, 2, 16, 9000)
 
@@ -17,11 +16,9 @@ func main() {
 		panic(err)
 	}
 
-	m := synthia.NewMixer(3)
+	m := synthia.NewMixer(1)
 
-	m.Channels[0].Input = sine1
-	m.Channels[1].Input = sine2
-	m.Channels[2].Input = sine3
+	m.Channels[0].Input = osc1
 
 	speaker.Input = m
 
