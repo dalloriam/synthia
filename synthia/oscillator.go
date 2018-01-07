@@ -58,7 +58,7 @@ func (o *Oscillator) sine(p []float64) {
 		sin := math.Sin(o.phase)
 		volFactor := float64(o.Volume) / float64(math.MaxUint8)
 
-		p[i] = (sin * volFactor * math.MaxUint16) / 2
+		p[i] = sin * volFactor * math.MaxUint16 / 2
 	}
 
 }

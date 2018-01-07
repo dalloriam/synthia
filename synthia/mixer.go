@@ -37,7 +37,7 @@ func (m *Mixer) Stream(p []float64) (int, error) {
 		}
 	}
 
-	if realChanCount > 2 {
+	if realChanCount > 1 {
 		for i := 0; i < len(p); i++ {
 			p[i] = p[i] / float64(realChanCount)
 		}

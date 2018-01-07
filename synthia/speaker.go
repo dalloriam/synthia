@@ -9,7 +9,7 @@ type Speaker struct {
 	status     chan bool
 }
 
-func NewSpeaker(sampleRate int, channelCount int, bitsPerSample int, bufferSize int) (*Speaker, error) {
+func NewSpeaker(channelCount int, bitsPerSample int, bufferSize int) (*Speaker, error) {
 	player, err := oto.NewPlayer(sampleRate, channelCount, bitsPerSample/8, bufferSize)
 
 	if err != nil {
