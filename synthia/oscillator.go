@@ -10,9 +10,10 @@ const (
 )
 
 type Oscillator struct {
-	frequency float64
-	shape     WaveShape
-	Volume    byte
+	Frequency *Knob
+
+	shape  WaveShape
+	Volume byte
 
 	phase   float64
 	radians float64
@@ -20,17 +21,11 @@ type Oscillator struct {
 
 func NewOscillator(freq float64, shape WaveShape) *Oscillator {
 	osc := &Oscillator{
-		frequency: freq,
-		shape:     shape,
-		Volume:    math.MaxUint8, // By default, oscillators output max volume and the mixer is tasked with vol. management
+		shape:  shape,
+		Volume: math.MaxUint8, // By default, oscillators output max volume and the mixer is tasked with vol. management
 	}
-	osc.computeRadians()
+	osc.Frequency = NewKnob(freq)
 	return osc
-}
-
-func (o *Oscillator) computeRadians() {
-	o.phase = 0.0
-	o.radians = o.frequency * math.Pi / float64(sampleRate)
 }
 
 func (o *Oscillator) Shape() WaveShape {
@@ -39,16 +34,13 @@ func (o *Oscillator) Shape() WaveShape {
 
 func (o *Oscillator) ChangeShape(shape WaveShape) {
 	o.shape = shape
-	o.computeRadians()
 }
 
-func (o *Oscillator) Frequency() float64 {
-	return o.frequency
-}
-
-func (o *Oscillator) ChangeFrequency(freq float64) {
-	o.frequency = freq
-	o.computeRadians()
+func (o *Oscillator) incrementPhase() {
+	if o.phase > 2*math.Pi {
+		o.phase = o.phase - (2 * math.Pi)
+	}
+	o.phase += o.Frequency.Value() * math.Pi / float64(sampleRate)
 }
 
 func (o *Oscillator) sine(p []float64) {
@@ -56,7 +48,7 @@ func (o *Oscillator) sine(p []float64) {
 	volFactor := float64(o.Volume) / float64(math.MaxUint8)
 
 	for i := 0; i < nbOfSamples; i++ {
-		o.phase += o.radians
+		o.incrementPhase()
 		sin := math.Sin(o.phase)
 
 		p[i] = sin * volFactor * math.MaxUint16 / 2
@@ -71,7 +63,7 @@ func (o *Oscillator) square(p []float64) {
 	volFactor := float64(o.Volume) / float64(math.MaxUint8)
 
 	for i := 0; i < nbOfSamples; i++ {
-		o.phase += o.radians
+		o.incrementPhase()
 		if math.Sin(o.phase) > 0 {
 			wv = math.MaxUint16
 		} else {
