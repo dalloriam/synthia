@@ -18,8 +18,11 @@ func NewSequencer(sequence []float64, stepDelay float64) *Sequencer {
 
 func (s *Sequencer) Stream(p []float64) (int, error) {
 
+	stepBuf := make([]float64, len(p))
+	s.StepFrequency.Stream(stepBuf)
+
 	for i := 0; i < len(p); i++ {
-		numOfSteps := int((time.Since(s.startTime).Seconds() * 1000.0) / float64(s.StepFrequency.Value()))
+		numOfSteps := int((time.Since(s.startTime).Seconds() * 1000.0) / float64(stepBuf[i]))
 
 		v := numOfSteps % len(s.Sequence)
 

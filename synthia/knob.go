@@ -17,11 +17,12 @@ func (k *Knob) SetValue(val float64) {
 	k.value = val
 }
 
-func (k *Knob) Value() float64 {
+func (k *Knob) Stream(p []float64) (int, error) {
 	if k.Line == nil {
-		return k.value
+		for i := 0; i < len(p); i++ {
+			p[i] = k.value
+		}
+		return len(p), nil
 	}
-	buf := make([]float64, 1)
-	k.Line.Stream(buf)
-	return buf[0]
+	return k.Line.Stream(p)
 }
