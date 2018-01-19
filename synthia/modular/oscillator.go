@@ -1,6 +1,10 @@
 package modular
 
-import "math"
+import (
+	"math"
+
+	"github.com/dalloriam/synthia/synthia"
+)
 
 type WaveShape int
 
@@ -12,10 +16,10 @@ const (
 const sampleRate = 44100.0
 
 type Oscillator struct {
-	Frequency *Knob
+	Frequency *synthia.Knob
 
 	Shape  WaveShape
-	Volume *Knob
+	Volume *synthia.Knob
 
 	phase   float64
 	radians float64
@@ -23,9 +27,9 @@ type Oscillator struct {
 
 func NewOscillator(freq float64, shape WaveShape) *Oscillator {
 	return &Oscillator{
-		Frequency: NewKnob(freq),
+		Frequency: synthia.NewKnob(freq),
 		Shape:     shape,
-		Volume:    NewKnob(math.MaxFloat64),
+		Volume:    synthia.NewKnob(math.MaxFloat64),
 	}
 }
 

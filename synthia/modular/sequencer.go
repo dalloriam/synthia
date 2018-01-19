@@ -1,17 +1,21 @@
 package modular
 
-import "time"
+import (
+	"time"
+
+	"github.com/dalloriam/synthia/synthia"
+)
 
 type Sequencer struct {
 	Sequence      []float64
-	StepFrequency *Knob
+	StepFrequency *synthia.Knob
 	startTime     time.Time
 }
 
 func NewSequencer(sequence []float64, stepDelay float64) *Sequencer {
 	return &Sequencer{
 		Sequence:      sequence,
-		StepFrequency: NewKnob(stepDelay),
+		StepFrequency: synthia.NewKnob(stepDelay),
 		startTime:     time.Now(),
 	}
 }

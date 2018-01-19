@@ -7,18 +7,16 @@ import (
 
 func main() {
 
-	synth, err := synthia.NewSynth(1)
+	synth, err := synthia.NewSynth(2)
 	if err != nil {
 		panic(err)
 	}
 
 	sineOscillator := modular.NewOscillator(261.6, modular.SINE)
-
-	sequencer := modular.NewSequencer([]float64{261.6, 293.7, 329.6}, 1000)
-
-	sineOscillator.Frequency.Line = sequencer
-
 	synth.Mixer.Channels[0].Input = sineOscillator
+
+	sineOscillator2 := modular.NewOscillator(440.0, modular.SINE)
+	synth.Mixer.Channels[1].Input = sineOscillator2
 
 	select {}
 }

@@ -1,6 +1,10 @@
 package modular
 
-import "math"
+import (
+	"math"
+
+	"github.com/dalloriam/synthia/synthia"
+)
 
 type LFO struct {
 	Oscillator
@@ -11,9 +15,9 @@ type LFO struct {
 func NewLFO(maxValue, minValue float64) *LFO {
 	return &LFO{
 		Oscillator: Oscillator{
-			Frequency: NewKnob(4),
+			Frequency: synthia.NewKnob(4),
 			Shape:     SINE,
-			Volume:    NewKnob(math.MaxFloat64),
+			Volume:    synthia.NewKnob(math.MaxFloat64),
 		},
 		maxValue: maxValue,
 		minValue: minValue,

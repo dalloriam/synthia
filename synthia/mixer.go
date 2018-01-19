@@ -16,30 +16,36 @@ func NewMixer(nbOfChannels int) *Mixer {
 
 func (m *Mixer) Stream(p []float64) {
 
-	realChanCount := 0
+	chanCnt := len(m.Channels)
 
-	for _, s := range m.Channels {
-		channelNull := true
+	bufs := make([][]float64, chanCnt)
 
-		buf := make([]float64, len(p))
-		s.Stream(buf)
+	maxes := make([]float64, chanCnt)
 
-		for i := 0; i < len(p); i++ {
-			x := p[i] + buf[i]
-			p[i] = x
-			if buf[i] != 0 {
-				channelNull = false
+	for i := 0; i < chanCnt; i++ {
+		bufs[i] = make([]float64, len(p))
+		m.Channels[i].Stream(bufs[i])
+
+		for j := 0; j < len(bufs[i]); j++ {
+			if bufs[i][j] > maxes[i] {
+				maxes[i] = bufs[i][j]
 			}
-		}
-
-		if !channelNull {
-			realChanCount++
 		}
 	}
 
-	if realChanCount > 1 {
-		for i := 0; i < len(p); i++ {
-			p[i] = p[i] / float64(realChanCount)
+	maxSum := 0.0
+	for _, mx := range maxes {
+		maxSum += mx
+	}
+
+	for i := 0; i < chanCnt; i++ {
+		maxes[i] = maxes[i] / maxSum
+	}
+
+	for j := 0; j < len(m.Channels); j++ {
+
+		for i := 0; i < len(bufs[j]); i++ {
+			p[i] = p[i] + (bufs[j][i] * maxes[j])
 		}
 	}
 }
