@@ -77,13 +77,11 @@ func (o *Oscillator) square(p []float64) {
 	}
 }
 
-func (o *Oscillator) Stream(p []float64) (int, error) {
+func (o *Oscillator) Stream(p []float64) {
 	switch o.Shape {
 	case SINE:
 		o.sine(p)
 	case SQUARE:
 		o.square(p)
 	}
-
-	return len(p), nil
 }

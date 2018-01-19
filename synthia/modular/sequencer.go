@@ -16,7 +16,7 @@ func NewSequencer(sequence []float64, stepDelay float64) *Sequencer {
 	}
 }
 
-func (s *Sequencer) Stream(p []float64) (int, error) {
+func (s *Sequencer) Stream(p []float64) {
 
 	stepBuf := make([]float64, len(p))
 	s.StepFrequency.Stream(stepBuf)
@@ -32,5 +32,4 @@ func (s *Sequencer) Stream(p []float64) (int, error) {
 
 		p[i] = s.Sequence[v]
 	}
-	return len(p), nil
 }

@@ -14,7 +14,7 @@ func NewMixer(nbOfChannels int) *Mixer {
 	return &Mixer{chans}
 }
 
-func (m *Mixer) Stream(p []float64) (int, error) {
+func (m *Mixer) Stream(p []float64) {
 
 	realChanCount := 0
 
@@ -42,6 +42,4 @@ func (m *Mixer) Stream(p []float64) (int, error) {
 			p[i] = p[i] / float64(realChanCount)
 		}
 	}
-
-	return len(p), nil
 }

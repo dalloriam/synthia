@@ -15,7 +15,7 @@ func NewMixerChannel() *MixerChannel {
 	}
 }
 
-func (c *MixerChannel) Stream(p []float64) (int, error) {
+func (c *MixerChannel) Stream(p []float64) {
 	if c.Input == nil {
 		for i := 0; i < len(p); i++ {
 			p[i] = 0
@@ -27,5 +27,4 @@ func (c *MixerChannel) Stream(p []float64) (int, error) {
 			p[i] = p[i] * volFactor
 		}
 	}
-	return len(p), nil
 }

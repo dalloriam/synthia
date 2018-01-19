@@ -20,13 +20,11 @@ func NewLFO(maxValue, minValue float64) *LFO {
 	}
 }
 
-func (l *LFO) Stream(p []float64) (int, error) {
+func (l *LFO) Stream(p []float64) {
 
 	l.Oscillator.Stream(p)
 
 	for i := 0; i < len(p); i++ {
 		p[i] = ((p[i] / math.MaxUint16) * (l.maxValue - l.minValue)) + l.minValue
 	}
-
-	return len(p), nil
 }
