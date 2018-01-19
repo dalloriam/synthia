@@ -1,7 +1,9 @@
-package synthia
+package modular
+
+import "github.com/dalloriam/synthia/synthia"
 
 type Knob struct {
-	Line  AudioStream
+	Line  synthia.AudioStream
 	value float64
 }
 

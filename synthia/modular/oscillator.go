@@ -1,4 +1,4 @@
-package synthia
+package modular
 
 import "math"
 
@@ -8,6 +8,8 @@ const (
 	SINE = iota
 	SQUARE
 )
+
+const sampleRate = 44100.0
 
 type Oscillator struct {
 	Frequency *Knob
@@ -31,7 +33,7 @@ func (o *Oscillator) incrementPhase(freq float64) {
 	if o.phase > 2*math.Pi {
 		o.phase = o.phase - (2 * math.Pi)
 	}
-	o.phase += freq * math.Pi / float64(sampleRate)
+	o.phase += freq * math.Pi / sampleRate
 }
 
 func (o *Oscillator) sine(p []float64) {

@@ -1,4 +1,4 @@
-package synthia
+package modular
 
 import "math"
 
