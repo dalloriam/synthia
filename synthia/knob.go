@@ -1,26 +1,20 @@
 package synthia
 
 type Knob struct {
-	callbacks []func()
-	Line      AudioStream
-	value     float64
+	Line  AudioStream
+	value float64
 }
 
-func NewKnob(defaultVal float64, callbacks ...func()) *Knob {
+func NewKnob(defaultVal float64) *Knob {
 	k := &Knob{
-		callbacks: callbacks,
-		Line:      nil,
-		value:     defaultVal,
+		Line:  nil,
+		value: defaultVal,
 	}
 	return k
 }
 
 func (k *Knob) SetValue(val float64) {
 	k.value = val
-
-	for _, cb := range k.callbacks {
-		cb()
-	}
 }
 
 func (k *Knob) Value() float64 {

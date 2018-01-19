@@ -13,19 +13,18 @@ type Oscillator struct {
 	Frequency *Knob
 
 	shape  WaveShape
-	Volume byte
+	Volume *Knob
 
 	phase   float64
 	radians float64
 }
 
 func NewOscillator(freq float64, shape WaveShape) *Oscillator {
-	osc := &Oscillator{
-		shape:  shape,
-		Volume: math.MaxUint8, // By default, oscillators output max volume and the mixer is tasked with vol. management
+	return &Oscillator{
+		Frequency: NewKnob(freq),
+		shape:     shape,
+		Volume:    NewKnob(math.MaxFloat64),
 	}
-	osc.Frequency = NewKnob(freq)
-	return osc
 }
 
 func (o *Oscillator) Shape() WaveShape {
@@ -45,7 +44,7 @@ func (o *Oscillator) incrementPhase() {
 
 func (o *Oscillator) sine(p []float64) {
 	nbOfSamples := len(p)
-	volFactor := float64(o.Volume) / float64(math.MaxUint8)
+	volFactor := o.Volume.Value() / math.MaxFloat64
 
 	for i := 0; i < nbOfSamples; i++ {
 		o.incrementPhase()
@@ -60,7 +59,7 @@ func (o *Oscillator) square(p []float64) {
 	nbOfSamples := len(p)
 
 	var wv float64
-	volFactor := float64(o.Volume) / float64(math.MaxUint8)
+	volFactor := float64(o.Volume.Value()) / float64(math.MaxUint8)
 
 	for i := 0; i < nbOfSamples; i++ {
 		o.incrementPhase()
