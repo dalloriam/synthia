@@ -21,8 +21,7 @@ type Oscillator struct {
 	Shape  WaveShape
 	Volume *synthia.Knob
 
-	phase   float64
-	radians float64
+	phase float64
 }
 
 func NewOscillator(freq float64, shape WaveShape) *Oscillator {

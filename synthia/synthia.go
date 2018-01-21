@@ -6,9 +6,8 @@ const bitsPerSample = 16
 const bufferSize = 8000 // TODO: Adjust dynamically
 
 type Synthia struct {
-	sampleRate int
-	speaker    *Speaker
-	Mixer      *Mixer
+	speaker *Speaker
+	Mixer   *Mixer
 }
 
 func NewSynth(channelCount int) (*Synthia, error) {
@@ -21,5 +20,5 @@ func NewSynth(channelCount int) (*Synthia, error) {
 
 	spk.Input = m
 	spk.Start()
-	return &Synthia{sampleRate: sampleRate, Mixer: m, speaker: spk}, nil
+	return &Synthia{Mixer: m, speaker: spk}, nil
 }

@@ -5,7 +5,6 @@ import "math"
 type MixerChannel struct {
 	Input  AudioStream
 	Volume *Knob
-	Output AudioStream
 }
 
 func NewMixerChannel() *MixerChannel {
