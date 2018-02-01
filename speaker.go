@@ -2,6 +2,7 @@ package synthia
 
 import "github.com/hajimehoshi/oto"
 
+// A Speaker is the default output device for the synthesizer it's hardcoded for now, but will be customizable in the future
 type Speaker struct {
 	bufferSize int
 	Input      AudioStream
@@ -9,6 +10,7 @@ type Speaker struct {
 	status     chan bool
 }
 
+// NewSpeaker returns an initialized speaker instance
 func NewSpeaker(channelCount, bitsPerSample, bufferSize, sampleRate int) (*Speaker, error) {
 	player, err := oto.NewPlayer(sampleRate, channelCount, bitsPerSample/8, bufferSize)
 
@@ -43,18 +45,25 @@ func (s *Speaker) play() {
 			outBuf := make([]byte, s.bufferSize)
 			s.convert(buf, outBuf)
 
-			s.player.Write(outBuf)
+			_, err := s.player.Write(outBuf)
+
+			// TODO: Handler properly
+			if err != nil {
+				panic(err)
+			}
 		case <-stpChan:
 			return
 		}
 	}
 }
 
+// Start starts the speaker
 func (s *Speaker) Start() {
 	s.status = make(chan bool)
 	go s.play()
 }
 
+// Stop stops the speaker
 func (s *Speaker) Stop() {
 	s.status <- true
 	close(s.status)

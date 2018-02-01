@@ -10,11 +10,13 @@ func (c *constantStreamer) Stream(p []float64) {
 	}
 }
 
+// A MIDIInput allows for live control of the synthesizer
 type MIDIInput struct {
 	VolumeControl    *constantStreamer
 	FrequencyControl *constantStreamer
 }
 
+// NewMIDIInput returns a midi input
 func NewMIDIInput() *MIDIInput {
 	return &MIDIInput{
 		VolumeControl:    &constantStreamer{value: 0},
@@ -22,10 +24,12 @@ func NewMIDIInput() *MIDIInput {
 	}
 }
 
+// UpdateVolume returns the current oscillator volume
 func (m *MIDIInput) UpdateVolume(volume float64) {
 	m.VolumeControl.value = volume
 }
 
+// UpdateFrequency returns the current oscillator frequency
 func (m *MIDIInput) UpdateFrequency(frequency float64) {
 	m.FrequencyControl.value = frequency
 }

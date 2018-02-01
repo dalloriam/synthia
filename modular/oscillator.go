@@ -3,9 +3,10 @@ package modular
 import (
 	"math"
 
-	"github.com/dalloriam/synthia/synthia"
+	"github.com/dalloriam/synthia"
 )
 
+// WaveShape represents a wave in the internal oscillator wavetable
 type WaveShape int
 
 const (
@@ -15,6 +16,7 @@ const (
 
 const sampleRate = 44100.0
 
+// An Oscillator is a simple wave generator
 type Oscillator struct {
 	Frequency *synthia.Knob
 
@@ -24,6 +26,7 @@ type Oscillator struct {
 	phase float64
 }
 
+// NewOscillator returns a new oscillator.
 func NewOscillator(freq float64, shape WaveShape) *Oscillator {
 	return &Oscillator{
 		Frequency: synthia.NewKnob(freq),
@@ -80,6 +83,7 @@ func (o *Oscillator) square(p []float64) {
 	}
 }
 
+// Stream writes the current phase to the buffer.
 func (o *Oscillator) Stream(p []float64) {
 	switch o.Shape {
 	case SINE:

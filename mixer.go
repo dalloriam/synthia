@@ -1,9 +1,11 @@
 package synthia
 
+// A Mixer is a collection of mixer channels
 type Mixer struct {
 	Channels []*MixerChannel
 }
 
+// NewMixer returns a new mixer with all of its channels already initialized
 func NewMixer(nbOfChannels int) *Mixer {
 
 	chans := make([]*MixerChannel, nbOfChannels)
@@ -14,6 +16,7 @@ func NewMixer(nbOfChannels int) *Mixer {
 	return &Mixer{chans}
 }
 
+// Stream mixes all the mixer channels in a single audio stream
 func (m *Mixer) Stream(p []float64) {
 
 	chanCnt := len(m.Channels)

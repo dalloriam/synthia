@@ -3,15 +3,17 @@ package modular
 import (
 	"time"
 
-	"github.com/dalloriam/synthia/synthia"
+	"github.com/dalloriam/synthia"
 )
 
+// A Sequencer loops through a note sequence and outputs the corresponding frequencies to a stream
 type Sequencer struct {
 	Sequence      []float64
 	StepFrequency *synthia.Knob
 	startTime     time.Time
 }
 
+// NewSequencer returns a sequencer instance.
 func NewSequencer(sequence []float64, stepDelay float64) *Sequencer {
 	return &Sequencer{
 		Sequence:      sequence,
@@ -20,6 +22,7 @@ func NewSequencer(sequence []float64, stepDelay float64) *Sequencer {
 	}
 }
 
+// Stream writes the current sequence frequency to the buffer
 func (s *Sequencer) Stream(p []float64) {
 
 	stepBuf := make([]float64, len(p))
