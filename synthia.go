@@ -12,15 +12,11 @@ type Synthia struct {
 }
 
 // NewSynth returns a new synthesizer with an already-initialized mixer
-func NewSynth(channelCount int) (*Synthia, error) {
+func NewSynth(channelCount int, output StreamOutput) *Synthia {
 	m := NewMixer(channelCount)
-	spk, err := NewSpeaker(audioChannelCount, bitsPerSample, bufferSize, sampleRate)
-
-	if err != nil {
-		return nil, err
-	}
+	spk := NewSpeaker(output, bufferSize)
 
 	spk.Input = m
 	spk.Start()
-	return &Synthia{Mixer: m, speaker: spk}, nil
+	return &Synthia{Mixer: m, speaker: spk}
 }

@@ -1,24 +1,17 @@
 package synthia
 
-import "github.com/hajimehoshi/oto"
-
 // A Speaker is the default output device for the synthesizer it's hardcoded for now, but will be customizable in the future
 type Speaker struct {
 	bufferSize int
 	Input      AudioStream
-	player     *oto.Player
+	player     StreamOutput
 	status     chan bool
 }
 
 // NewSpeaker returns an initialized speaker instance
-func NewSpeaker(channelCount, bitsPerSample, bufferSize, sampleRate int) (*Speaker, error) {
-	player, err := oto.NewPlayer(sampleRate, channelCount, bitsPerSample/8, bufferSize)
+func NewSpeaker(output StreamOutput, bufferSize int) *Speaker {
 
-	if err != nil {
-		return nil, err
-	}
-
-	return &Speaker{bufferSize: bufferSize, player: player}, nil
+	return &Speaker{bufferSize: bufferSize, player: output}
 }
 
 func (s *Speaker) convert(floatOutput []float64, p []byte) {
