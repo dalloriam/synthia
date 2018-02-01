@@ -1,6 +1,9 @@
 package main
 
 import (
+	"math"
+	"time"
+
 	"github.com/dalloriam/synthia/synthia"
 	"github.com/dalloriam/synthia/synthia/modular"
 )
@@ -15,8 +18,17 @@ func main() {
 	sineOscillator := modular.NewOscillator(261.6, modular.SINE)
 	synth.Mixer.Channels[0].Input = sineOscillator
 
-	sineOscillator2 := modular.NewOscillator(440.0, modular.SINE)
-	synth.Mixer.Channels[1].Input = sineOscillator2
+	inpt := modular.NewMIDIInput()
+
+	sineOscillator.Frequency.Line = inpt.FrequencyControl
+	sineOscillator.Volume.Line = inpt.VolumeControl
+
+	inpt.UpdateFrequency(400)
+	inpt.UpdateVolume(math.MaxFloat64)
+
+	time.Sleep(2 * time.Second)
+
+	inpt.UpdateVolume(0)
 
 	select {}
 }
