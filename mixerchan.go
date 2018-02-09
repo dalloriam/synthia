@@ -28,7 +28,7 @@ func (c *MixerChannel) Stream(p []float64) {
 	} else {
 		c.Input.Stream(p)
 		for i := 0; i < len(p); i++ {
-			volFactor := volBuf[i] / float64(math.MaxUint8)
+			volFactor := volBuf[i] / float64(math.MaxFloat64)
 			p[i] = p[i] * volFactor
 		}
 	}
