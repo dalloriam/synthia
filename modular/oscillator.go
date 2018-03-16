@@ -9,87 +9,75 @@ import (
 // WaveShape represents a wave in the internal oscillator wavetable
 type WaveShape int
 
-const (
-	SINE = iota
-	SQUARE
-	SAWTOOTH
-)
-
 const sampleRate = 44100.0
 
 // An Oscillator is a simple wave generator
 type Oscillator struct {
 	Frequency *synthia.Knob
+	Volume    *synthia.Knob
 
-	Shape  WaveShape
-	Volume *synthia.Knob
+	Sine   synthia.Signal
+	Square synthia.Signal
+	Saw    synthia.Signal
 
 	phase float64
 }
 
 // NewOscillator returns a new oscillator.
-func NewOscillator(freq float64, shape WaveShape) *Oscillator {
+func NewOscillator() *Oscillator {
+	vol := synthia.NewKnob(math.MaxFloat64)
+	freq := synthia.NewKnob(440)
+
 	return &Oscillator{
-		Frequency: synthia.NewKnob(freq),
-		Shape:     shape,
-		Volume:    synthia.NewKnob(math.MaxFloat64),
+		Frequency: freq,
+		Volume:    vol,
+		Sine:      &toneGenerator{0.0, vol, freq, generateSine},
+		Square:    &toneGenerator{0.0, vol, freq, generateSquare},
+		Saw:       &toneGenerator{0.0, vol, freq, generateSaw},
 	}
 }
 
-func (o *Oscillator) getToneGenerator() func() float64 {
-	var wave func() float64
-
-	switch o.Shape {
-	case SQUARE:
-		wave = o.square
-
-	case SINE:
-		wave = o.sine
-	case SAWTOOTH:
-		wave = o.sawtooth
-	}
-
-	return wave
+type toneGenerator struct {
+	phase     float64
+	volume    *synthia.Knob
+	frequency *synthia.Knob
+	tone      func(phase float64) float64
 }
 
-func (o *Oscillator) incrementPhase(freq float64) {
-	o.phase += freq * 2 * math.Pi / sampleRate
-	if o.phase > 2*math.Pi {
-		o.phase -= 2 * math.Pi
+func (t *toneGenerator) incrementPhase(freq float64) {
+	t.phase += freq * 2 * math.Pi / sampleRate
+	if t.phase > 2*math.Pi {
+		t.phase -= 2 * math.Pi
 	}
 }
 
-func (o *Oscillator) sine() float64 {
-	return math.Sin(o.phase)
-}
-
-func (o *Oscillator) square() float64 {
-	if math.Sin(o.phase) > 0 {
-		return 1
-	} else {
-		return -1
-	}
-}
-
-func (o *Oscillator) sawtooth() float64 {
-	p := o.phase / (2 * math.Pi)
-	return (2 * p) - 1
-}
-
-// Stream writes the current phase to the buffer.
-func (o *Oscillator) Stream(p []float64) {
-	toneGenerator := o.getToneGenerator()
-
+func (t *toneGenerator) Stream(p []float64) {
 	nbOfSamples := len(p)
 
 	volBuf := make([]float64, len(p))
-	o.Volume.Stream(volBuf)
+	t.volume.Stream(volBuf)
 
 	freqBuf := make([]float64, len(p))
-	o.Frequency.Stream(freqBuf)
+	t.frequency.Stream(freqBuf)
 
 	for i := 0; i < nbOfSamples; i++ {
-		o.incrementPhase(freqBuf[i])
-		p[i] = toneGenerator() * (volBuf[i] / math.MaxFloat64) * math.MaxUint16 / 2
+		t.incrementPhase(freqBuf[i])
+		p[i] = t.tone(t.phase) * (volBuf[i] / math.MaxFloat64) * math.MaxUint16 / 2
 	}
+}
+
+func generateSine(phase float64) float64 {
+	return math.Sin(phase)
+}
+
+func generateSquare(phase float64) float64 {
+	if math.Sin(phase) > 0 {
+		return 1
+	}
+	return -1
+}
+
+func generateSaw(phase float64) float64 {
+	p := phase / (2 * math.Pi)
+	return (2 * p) - 1
 }
