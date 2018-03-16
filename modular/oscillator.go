@@ -75,9 +75,9 @@ func (o *Oscillator) square(p []float64) {
 	for i := 0; i < nbOfSamples; i++ {
 		o.incrementPhase(phaseBuf[i])
 		if math.Sin(o.phase) > 0 {
-			wv = math.MaxUint16
+			wv = math.MaxUint16 / 2
 		} else {
-			wv = 0
+			wv = -math.MaxUint16 / 2
 		}
 		p[i] = wv * (volBuf[i] / math.MaxFloat64)
 	}
