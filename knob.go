@@ -2,7 +2,7 @@ package synthia
 
 // A Knob represents a module parameter that can be manually tweaked as well as plugged in to a line
 type Knob struct {
-	Line  AudioStream
+	Line  Signal
 	value float64
 }
 

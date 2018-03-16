@@ -17,38 +17,51 @@ func NewMixer(nbOfChannels int) *Mixer {
 }
 
 // Stream mixes all the mixer channels in a single audio stream
-func (m *Mixer) Stream(p []float64) {
+func (m *Mixer) Stream(l, r []float64) {
+
+	bufSize := len(r)
 
 	chanCnt := len(m.Channels)
 
-	bufs := make([][]float64, chanCnt)
+	lbufs := make([][]float64, chanCnt)
+	rbufs := make([][]float64, chanCnt)
 
-	maxes := make([]float64, chanCnt)
+	rmaxes := make([]float64, chanCnt)
+	lmaxes := make([]float64, chanCnt)
 
 	for i := 0; i < chanCnt; i++ {
-		bufs[i] = make([]float64, len(p))
-		m.Channels[i].Stream(bufs[i])
+		lbufs[i] = make([]float64, bufSize)
+		rbufs[i] = make([]float64, bufSize)
+		m.Channels[i].Stream(lbufs[i], rbufs[i])
 
-		for j := 0; j < len(bufs[i]); j++ {
-			if bufs[i][j] > maxes[i] {
-				maxes[i] = bufs[i][j]
+		for j := 0; j < len(rbufs[i]); j++ {
+			if rbufs[i][j] > rmaxes[i] {
+				rmaxes[i] = rbufs[i][j]
+			}
+			if lbufs[i][j] > lmaxes[i] {
+				lmaxes[i] = lbufs[i][j]
 			}
 		}
 	}
 
-	maxSum := 0.0
-	for _, mx := range maxes {
-		maxSum += mx
+	rSum := 0.0
+	lSum := 0.0
+
+	for i := 0; i < chanCnt; i++ {
+		rSum += rmaxes[i]
+		lSum += lmaxes[i]
 	}
 
 	for i := 0; i < chanCnt; i++ {
-		maxes[i] = maxes[i] / maxSum
+		rmaxes[i] = rmaxes[i] / rSum
+		lmaxes[i] = lmaxes[i] / lSum
 	}
 
 	for j := 0; j < len(m.Channels); j++ {
 
-		for i := 0; i < len(bufs[j]); i++ {
-			p[i] = p[i] + (bufs[j][i] * maxes[j])
+		for i := 0; i < len(rbufs[j]); i++ {
+			l[i] = l[i] + (lbufs[j][i] * lmaxes[j])
+			r[i] = r[i] + (rbufs[j][i] * rmaxes[j])
 		}
 	}
 }

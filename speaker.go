@@ -3,8 +3,7 @@ package synthia
 // A Speaker is the output device for the synthesizer.
 type Speaker struct {
 	bufferSize int
-	InputR     AudioStream
-	InputL     AudioStream
+	Input      StereoSignal
 	player     StreamOutput
 	status     chan bool
 }
@@ -44,14 +43,9 @@ func (s *Speaker) play() {
 		select {
 		default:
 			rightBuf := make([]float64, s.bufferSize)
-			if s.InputR != nil {
-				s.InputR.Stream(rightBuf)
-			}
-
 			leftBuf := make([]float64, s.bufferSize)
-			if s.InputL != nil {
-				s.InputL.Stream(leftBuf)
-			}
+
+			s.Input.Stream(leftBuf, rightBuf)
 
 			outBuf := make([]byte, s.bufferSize*4)
 			s.convert(rightBuf, leftBuf, outBuf)
