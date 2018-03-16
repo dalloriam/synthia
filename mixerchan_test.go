@@ -3,7 +3,7 @@ package synthia_test
 import (
 	"testing"
 
-	"github.com/dalloriam/synthia"
+	"github.com/Dalloriam/synthia"
 )
 
 func TestNewMixerChannel(t *testing.T) {
