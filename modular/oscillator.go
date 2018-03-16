@@ -53,7 +53,7 @@ func (o *Oscillator) getToneGenerator() func() float64 {
 }
 
 func (o *Oscillator) incrementPhase(freq float64) {
-	o.phase += freq * math.Pi / sampleRate
+	o.phase += freq * 2 * math.Pi / sampleRate
 	if o.phase > 2*math.Pi {
 		o.phase -= 2 * math.Pi
 	}

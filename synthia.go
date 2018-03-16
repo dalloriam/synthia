@@ -11,7 +11,7 @@ func NewSynth(channelCount, bufferSize int, output StreamOutput) *Synthia {
 	m := NewMixer(channelCount)
 	spk := NewSpeaker(output, bufferSize)
 
-	spk.Input = m
+	spk.InputR = m
 	spk.Start()
 	return &Synthia{Mixer: m, speaker: spk}
 }
