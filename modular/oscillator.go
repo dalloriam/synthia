@@ -3,6 +3,8 @@ package modular
 import (
 	"math"
 
+	"fmt"
+
 	"github.com/dalloriam/synthia"
 )
 
@@ -16,9 +18,10 @@ type Oscillator struct {
 	Frequency *synthia.Knob
 	Volume    *synthia.Knob
 
-	Sine   synthia.Signal
-	Square synthia.Signal
-	Saw    synthia.Signal
+	Sine     synthia.Signal
+	Square   synthia.Signal
+	Saw      synthia.Signal
+	Triangle synthia.Signal
 
 	phase float64
 }
@@ -34,6 +37,7 @@ func NewOscillator() *Oscillator {
 		Sine:      &toneGenerator{0.0, vol, freq, generateSine},
 		Square:    &toneGenerator{0.0, vol, freq, generateSquare},
 		Saw:       &toneGenerator{0.0, vol, freq, generateSaw},
+		Triangle:  &toneGenerator{0.0, vol, freq, generateTriangle},
 	}
 }
 
@@ -64,6 +68,8 @@ func (t *toneGenerator) Stream(p []float64) {
 		t.incrementPhase(freqBuf[i])
 		p[i] = t.tone(t.phase) * (volBuf[i] / math.MaxFloat64) * math.MaxUint16 / 2
 	}
+
+	fmt.Println(p)
 }
 
 func generateSine(phase float64) float64 {
@@ -80,4 +86,12 @@ func generateSquare(phase float64) float64 {
 func generateSaw(phase float64) float64 {
 	p := phase / (2 * math.Pi)
 	return (2 * p) - 1
+}
+
+func generateTriangle(phase float64) float64 {
+	at := phase / (2 * math.Pi)
+	if at > 0.5 {
+		at = 1.0 - at
+	}
+	return at*2.0*2.0 - 1.0
 }
