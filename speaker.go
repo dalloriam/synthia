@@ -1,7 +1,5 @@
 package synthia
 
-import "fmt"
-
 // A Speaker is the output device for the synthesizer.
 type Speaker struct {
 	bufferSize int
@@ -21,8 +19,6 @@ func (s *Speaker) convert(rightIn, leftIn []float64, p []byte) {
 	offset := 0
 
 	inLength := len(rightIn)
-
-	fmt.Println(rightIn)
 
 	chans := [][]float64{leftIn, rightIn}
 
@@ -47,17 +43,17 @@ func (s *Speaker) play() {
 	for {
 		select {
 		default:
-			rightBuf := make([]float64, s.bufferSize/2)
+			rightBuf := make([]float64, s.bufferSize)
 			if s.InputR != nil {
 				s.InputR.Stream(rightBuf)
 			}
 
-			leftBuf := make([]float64, s.bufferSize/2)
+			leftBuf := make([]float64, s.bufferSize)
 			if s.InputL != nil {
 				s.InputL.Stream(leftBuf)
 			}
 
-			outBuf := make([]byte, s.bufferSize*2)
+			outBuf := make([]byte, s.bufferSize*4)
 			s.convert(rightBuf, leftBuf, outBuf)
 
 			_, err := s.player.Write(outBuf)

@@ -3,7 +3,7 @@ package modular
 import (
 	"math"
 
-	"github.com/dalloriam/synthia"
+	"github.com/Dalloriam/synthia"
 )
 
 // An LFO is a Low-Frequency Oscillator. It differs from the actual oscillator in that it allows for setting a floor and a ceiling.
