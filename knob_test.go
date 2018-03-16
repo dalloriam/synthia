@@ -36,7 +36,7 @@ func TestNewKnob(t *testing.T) {
 		k.Stream(buf)
 
 		if buf[0] != val {
-			t.Errorf("expected knob value to be %d, got %d", val, buf[0])
+			t.Errorf("expected knob value to be %f, got %f", val, buf[0])
 		}
 	})
 }
@@ -55,7 +55,7 @@ func TestKnob_SetValue(t *testing.T) {
 		k.Stream(buf)
 
 		if buf[0] != newVal {
-			t.Errorf("expected knob value to be %d, got %d", newVal, buf[0])
+			t.Errorf("expected knob value to be %f, got %f", newVal, buf[0])
 		}
 	})
 }
@@ -70,7 +70,7 @@ func TestKnob_Stream(t *testing.T) {
 		k.Stream(buf)
 
 		if val != buf[0] {
-			t.Errorf("expected value %d, got %d", val, buf[0])
+			t.Errorf("expected value %f, got %f", val, buf[0])
 		}
 	})
 
@@ -86,7 +86,7 @@ func TestKnob_Stream(t *testing.T) {
 		knob.Stream(buf)
 
 		if buf[0] != line.Val {
-			t.Errorf("expected value %d, got %d", line.Val, buf[0])
+			t.Errorf("expected value %f, got %f", line.Val, buf[0])
 		}
 	})
 
