@@ -3,7 +3,7 @@ package modular
 import (
 	"math"
 
-	"github.com/Dalloriam/synthia"
+	"github.com/dalloriam/synthia"
 )
 
 // WaveShape represents a wave in the internal oscillator wavetable

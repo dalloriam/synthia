@@ -1,5 +1,7 @@
 package synthia
 
+import "io"
+
 // Synthia is the core synthesizer struct
 type Synthia struct {
 	speaker *Speaker
@@ -7,7 +9,7 @@ type Synthia struct {
 }
 
 // NewSynth returns a new synthesizer with an already-initialized mixer
-func NewSynth(channelCount, bufferSize int, output StreamOutput) *Synthia {
+func NewSynth(channelCount, bufferSize int, output io.Writer) *Synthia {
 	m := NewMixer(channelCount)
 	spk := NewSpeaker(output, bufferSize)
 

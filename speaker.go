@@ -1,15 +1,17 @@
 package synthia
 
+import "io"
+
 // A Speaker is the output device for the synthesizer.
 type Speaker struct {
 	bufferSize int
 	Input      StereoSignal
-	player     StreamOutput
+	player     io.Writer
 	status     chan bool
 }
 
 // NewSpeaker returns an initialized speaker instance
-func NewSpeaker(output StreamOutput, bufferSize int) *Speaker {
+func NewSpeaker(output io.Writer, bufferSize int) *Speaker {
 
 	return &Speaker{bufferSize: bufferSize, player: output}
 }

@@ -3,7 +3,7 @@ package modular
 import (
 	"time"
 
-	"github.com/Dalloriam/synthia"
+	"github.com/dalloriam/synthia"
 )
 
 // A Sequencer loops through a note sequence and outputs the corresponding frequencies to a stream
