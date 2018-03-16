@@ -93,5 +93,5 @@ func generateTriangle(phase float64) float64 {
 	if at > 0.5 {
 		at = 1.0 - at
 	}
-	return at*2.0*2.0 - 1.0
+	return at*4.0 - 1.0
 }
