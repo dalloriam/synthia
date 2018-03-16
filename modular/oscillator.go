@@ -12,6 +12,7 @@ type WaveShape int
 const (
 	SINE = iota
 	SQUARE
+	SAWTOOTH
 )
 
 const sampleRate = 44100.0
@@ -44,28 +45,35 @@ func (o *Oscillator) getToneGenerator() func() float64 {
 
 	case SINE:
 		wave = o.sine
+	case SAWTOOTH:
+		wave = o.sawtooth
 	}
 
 	return wave
 }
 
 func (o *Oscillator) incrementPhase(freq float64) {
-	if o.phase > 2*math.Pi {
-		o.phase = o.phase - (2 * math.Pi)
-	}
 	o.phase += freq * math.Pi / sampleRate
+	if o.phase > 2*math.Pi {
+		o.phase -= 2 * math.Pi
+	}
 }
 
 func (o *Oscillator) sine() float64 {
-	return math.Sin(o.phase) * math.MaxUint16 / 2
+	return math.Sin(o.phase)
 }
 
 func (o *Oscillator) square() float64 {
 	if math.Sin(o.phase) > 0 {
-		return math.MaxUint16 / 2
+		return 1
 	} else {
-		return -math.MaxUint16 / 2
+		return -1
 	}
+}
+
+func (o *Oscillator) sawtooth() float64 {
+	p := o.phase / (2 * math.Pi)
+	return (2 * p) - 1
 }
 
 // Stream writes the current phase to the buffer.
@@ -77,11 +85,11 @@ func (o *Oscillator) Stream(p []float64) {
 	volBuf := make([]float64, len(p))
 	o.Volume.Stream(volBuf)
 
-	phaseBuf := make([]float64, len(p))
-	o.Frequency.Stream(phaseBuf)
+	freqBuf := make([]float64, len(p))
+	o.Frequency.Stream(freqBuf)
 
 	for i := 0; i < nbOfSamples; i++ {
-		o.incrementPhase(phaseBuf[i])
-		p[i] = toneGenerator() * (volBuf[i] / math.MaxFloat64)
+		o.incrementPhase(freqBuf[i])
+		p[i] = toneGenerator() * (volBuf[i] / math.MaxFloat64) * math.MaxUint16 / 2
 	}
 }
