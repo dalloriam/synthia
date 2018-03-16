@@ -1,6 +1,6 @@
 package synthia
 
-// A Speaker is the default output device for the synthesizer it's hardcoded for now, but will be customizable in the future
+// A Speaker is the output device for the synthesizer.
 type Speaker struct {
 	bufferSize int
 	Input      AudioStream
