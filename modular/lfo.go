@@ -25,11 +25,7 @@ func NewLFO(maxValue, minValue float64) *LFO {
 }
 
 // Stream writes the current LFO phase to the audio buffer.
-func (l *LFO) Stream(p []float64) {
-
-	l.Oscillator.Sine.Stream(p)
-
-	for i := 0; i < len(p); i++ {
-		p[i] = ((p[i] / math.MaxUint16) * (l.maxValue - l.minValue)) + l.minValue
-	}
+func (l *LFO) Stream() float64 {
+	sample := l.Oscillator.Sine.Stream()
+	return ((sample / math.MaxUint16) * (l.maxValue - l.minValue)) + l.minValue
 }

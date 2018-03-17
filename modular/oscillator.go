@@ -10,6 +10,7 @@ import (
 type WaveShape int
 
 const sampleRate = 44100.0
+const twoPi = 2 * math.Pi
 
 // An Oscillator is a simple wave generator
 type Oscillator struct {
@@ -47,46 +48,37 @@ type toneGenerator struct {
 }
 
 func (t *toneGenerator) incrementPhase(freq float64) {
-	t.phase += freq * 2 * math.Pi / sampleRate
-	if t.phase > 2*math.Pi {
-		t.phase -= 2 * math.Pi
+	t.phase += freq * twoPi / sampleRate
+	if t.phase > twoPi {
+		t.phase -= twoPi
 	}
 }
 
-func (t *toneGenerator) Stream(p []float64) {
-	nbOfSamples := len(p)
+func (t *toneGenerator) Stream() float64 {
 
-	volBuf := make([]float64, len(p))
-	t.volume.Stream(volBuf)
-
-	freqBuf := make([]float64, len(p))
-	t.frequency.Stream(freqBuf)
-
-	for i := 0; i < nbOfSamples; i++ {
-		t.incrementPhase(freqBuf[i])
-		p[i] = t.tone(t.phase) * (volBuf[i] / math.MaxFloat64) * math.MaxUint16 / 2
-	}
+	t.incrementPhase(t.frequency.Stream())
+	return t.tone(t.phase) * (t.volume.Stream() / math.MaxFloat64) * math.MaxUint16 / 2
 
 }
 
 func generateSine(phase float64) float64 {
-	return math.Sin(phase)
+	return sin(phase)
 }
 
 func generateSquare(phase float64) float64 {
-	if math.Sin(phase) > 0 {
+	if sin(phase) > 0 {
 		return 1
 	}
 	return -1
 }
 
 func generateSaw(phase float64) float64 {
-	p := phase / (2 * math.Pi)
+	p := phase / twoPi
 	return (2 * p) - 1
 }
 
 func generateTriangle(phase float64) float64 {
-	at := phase / (2 * math.Pi)
+	at := phase / twoPi
 	if at > 0.5 {
 		at = 1.0 - at
 	}

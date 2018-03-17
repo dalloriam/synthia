@@ -30,30 +30,21 @@ func (c *MixerChannel) Stream(l, r []float64) {
 		}
 	} else {
 
-		volBuf := make([]float64, bufLen)
-		c.Volume.Stream(volBuf)
-
-		panBuf := make([]float64, bufLen)
-		c.Pan.Stream(panBuf)
-
-		p := make([]float64, bufLen)
-
-		c.Input.Stream(p)
-
 		for i := 0; i < bufLen; i++ {
-			volFactor := volBuf[i] / float64(math.MaxUint8)
+			volFactor := c.Volume.Stream() / float64(math.MaxUint8)
 
-			currentSample := p[i] * volFactor
+			currentSample := c.Input.Stream() * volFactor
+			pan := c.Pan.Stream()
 
-			if panBuf[i] == 0 {
+			if pan == 0 {
 				r[i] = currentSample
 				l[i] = currentSample
-			} else if panBuf[i] > 0 {
-				r[i] = (1 - panBuf[i]) * currentSample
+			} else if pan > 0 {
+				r[i] = (1 - pan) * currentSample
 				l[i] = currentSample
 			} else {
 				r[i] = currentSample
-				l[i] = (1 + panBuf[i]) * currentSample
+				l[i] = (1 + pan) * currentSample
 			}
 		}
 	}

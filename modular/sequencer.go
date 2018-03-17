@@ -1,42 +1,38 @@
 package modular
 
 import (
-	"time"
-
 	"github.com/dalloriam/synthia"
 )
 
 // A Sequencer loops through a note sequence and outputs the corresponding frequencies to a stream
 type Sequencer struct {
-	Sequence      []float64
-	StepFrequency *synthia.Knob
-	startTime     time.Time
+	Clock       synthia.Signal
+	Sequence    []float64
+	lastClock   float64
+	currentStep int
 }
 
 // NewSequencer returns a sequencer instance.
-func NewSequencer(sequence []float64, stepDelay float64) *Sequencer {
+func NewSequencer(sequence []float64) *Sequencer {
 	return &Sequencer{
-		Sequence:      sequence,
-		StepFrequency: synthia.NewKnob(stepDelay),
-		startTime:     time.Now(),
+		Sequence:    sequence,
+		lastClock:   -24,
+		currentStep: -1,
 	}
 }
 
 // Stream writes the current sequence frequency to the buffer
-func (s *Sequencer) Stream(p []float64) {
+func (s *Sequencer) Stream() float64 {
 
-	stepBuf := make([]float64, len(p))
-	s.StepFrequency.Stream(stepBuf)
+	// Play quarternotes by default
+	currentClock := s.Clock.Stream()
 
-	for i := 0; i < len(p); i++ {
-		numOfSteps := int((time.Since(s.startTime).Seconds() * 1000.0) / float64(stepBuf[i]))
-
-		v := numOfSteps % len(s.Sequence)
-
-		if numOfSteps > 1000 && v == 0 {
-			s.startTime = time.Now()
-		}
-
-		p[i] = s.Sequence[v]
+	if currentClock > s.lastClock && (currentClock-s.lastClock) >= 24 {
+		s.lastClock = currentClock
+		s.currentStep++
 	}
+
+	// TODO: Watch for overflow on s.currentStep
+	v := s.currentStep % len(s.Sequence)
+	return s.Sequence[v]
 }

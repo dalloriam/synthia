@@ -21,12 +21,9 @@ func (k *Knob) SetValue(val float64) {
 }
 
 // Stream fills the buffer with the current knob value if no line connected. If a line is connected to the knob, it reads from the line instead
-func (k *Knob) Stream(p []float64) {
+func (k *Knob) Stream() float64 {
 	if k.Line == nil {
-		for i := 0; i < len(p); i++ {
-			p[i] = k.value
-		}
-		return
+		return k.value
 	}
-	k.Line.Stream(p)
+	return k.Line.Stream()
 }

@@ -39,25 +39,33 @@ func (s *Speaker) convert(rightIn, leftIn []float64, p []byte) {
 	}
 }
 
+func (s *Speaker) processBuffer() {
+	rightBuf := make([]float64, s.bufferSize)
+	leftBuf := make([]float64, s.bufferSize)
+
+	for i := 0; i < s.bufferSize; i++ {
+
+	}
+
+	s.Input.Stream(leftBuf, rightBuf)
+
+	outBuf := make([]byte, s.bufferSize*4)
+	s.convert(rightBuf, leftBuf, outBuf)
+
+	_, err := s.player.Write(outBuf)
+
+	// TODO: Handler properly
+	if err != nil {
+		panic(err)
+	}
+}
+
 func (s *Speaker) play() {
 	stpChan := s.status
 	for {
 		select {
 		default:
-			rightBuf := make([]float64, s.bufferSize)
-			leftBuf := make([]float64, s.bufferSize)
-
-			s.Input.Stream(leftBuf, rightBuf)
-
-			outBuf := make([]byte, s.bufferSize*4)
-			s.convert(rightBuf, leftBuf, outBuf)
-
-			_, err := s.player.Write(outBuf)
-
-			// TODO: Handler properly
-			if err != nil {
-				panic(err)
-			}
+			s.processBuffer()
 		case <-stpChan:
 			return
 		}
