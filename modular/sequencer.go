@@ -1,38 +1,31 @@
 package modular
 
-import (
-	"github.com/dalloriam/synthia"
-)
-
 // A Sequencer loops through a note sequence and outputs the corresponding frequencies to a stream
 type Sequencer struct {
-	Clock       synthia.Signal
-	Sequence    []float64
-	lastClock   float64
-	currentStep int
+	Clock        *Clock
+	Sequence     []float64
+	BeatsPerStep float64
+
+	lastClock float64
 }
 
 // NewSequencer returns a sequencer instance.
 func NewSequencer(sequence []float64) *Sequencer {
 	return &Sequencer{
-		Sequence:    sequence,
-		lastClock:   -24,
-		currentStep: -1,
+		Sequence:     sequence,
+		lastClock:    -24,
+		BeatsPerStep: 0.5,
 	}
 }
 
 // Stream writes the current sequence frequency to the buffer
 func (s *Sequencer) Stream() float64 {
 
-	// Play quarternotes by default
+	ticksPerStep := float64(s.Clock.TicksPerBeat) * s.BeatsPerStep
+
 	currentClock := s.Clock.Stream()
 
-	if currentClock > s.lastClock && (currentClock-s.lastClock) >= 24 {
-		s.lastClock = currentClock
-		s.currentStep++
-	}
+	stepIdx := int(currentClock/ticksPerStep) % len(s.Sequence)
 
-	// TODO: Watch for overflow on s.currentStep
-	v := s.currentStep % len(s.Sequence)
-	return s.Sequence[v]
+	return s.Sequence[stepIdx]
 }

@@ -57,7 +57,7 @@ func (t *toneGenerator) incrementPhase(freq float64) {
 func (t *toneGenerator) Stream() float64 {
 
 	t.incrementPhase(t.frequency.Stream())
-	return t.tone(t.phase) * (t.volume.Stream() / math.MaxFloat64) * math.MaxUint16 / 2
+	return t.tone(t.phase) * (t.volume.Stream() / math.MaxFloat64)
 
 }
 

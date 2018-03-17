@@ -1,19 +1,26 @@
 package synthia
 
-import "io"
-
 // Synthia is the core synthesizer struct
 type Synthia struct {
-	speaker *Speaker
+	Speaker *Speaker
 	Mixer   *Mixer
 }
 
-// NewSynth returns a new synthesizer with an already-initialized mixer
-func NewSynth(channelCount, bufferSize int, output io.Writer) *Synthia {
-	m := NewMixer(channelCount)
-	spk := NewSpeaker(output, bufferSize)
+type audioBackend interface {
+	Start(callback func(in []float32, out [][]float32)) error
+	FrameSize() int
+}
 
+// NewSynth returns a new synthesizer with an already-initialized mixer
+func NewSynth(channelCount, bufferSize int, output audioBackend) *Synthia {
+	m := NewMixer(channelCount)
+	spk := NewSpeaker(bufferSize, output.FrameSize())
 	spk.Input = m
-	spk.Start()
-	return &Synthia{Mixer: m, speaker: spk}
+
+	err := output.Start(spk.ProcessBuffer)
+	if err != nil {
+		panic(err)
+	}
+
+	return &Synthia{Mixer: m, Speaker: spk}
 }
