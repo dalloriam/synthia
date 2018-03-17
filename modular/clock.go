@@ -3,8 +3,6 @@ package modular
 import (
 	"time"
 
-	"fmt"
-
 	"github.com/dalloriam/synthia"
 )
 
@@ -35,8 +33,6 @@ func (c *Clock) Stream() float64 {
 	if nbOfTicks > 1000 && v == 0 {
 		c.startTime = time.Now()
 	}
-
-	fmt.Println(nbOfTicks)
 
 	return float64(nbOfTicks)
 }

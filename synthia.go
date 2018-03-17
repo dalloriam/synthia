@@ -2,8 +2,10 @@ package synthia
 
 // Synthia is the core synthesizer struct
 type Synthia struct {
-	Speaker *Speaker
-	Mixer   *Mixer
+	bufferSize int
+	chunkSize  int
+	Mixer      *Mixer
+	output     audioBackend
 }
 
 type audioBackend interface {
@@ -14,13 +16,41 @@ type audioBackend interface {
 // NewSynth returns a new synthesizer with an already-initialized mixer
 func NewSynth(channelCount, bufferSize int, output audioBackend) *Synthia {
 	m := NewMixer(channelCount)
-	spk := NewSpeaker(bufferSize, output.FrameSize())
-	spk.Input = m
 
-	err := output.Start(spk.ProcessBuffer)
+	synth := &Synthia{
+		bufferSize: bufferSize,
+		chunkSize:  int(float64(output.FrameSize()) / float64(bufferSize)),
+		Mixer:      m,
+		output:     output,
+	}
+
+	err := output.Start(synth.processBuffer)
+
 	if err != nil {
 		panic(err)
 	}
 
-	return &Synthia{Mixer: m, Speaker: spk}
+	return synth
+}
+
+func (s *Synthia) processBuffer(in []float32, out [][]float32) {
+	rightBuf := make([]float64, s.bufferSize)
+	leftBuf := make([]float64, s.bufferSize)
+
+	s.Mixer.Stream(leftBuf, rightBuf)
+
+	for k := 0; k < s.chunkSize; k++ {
+		offset := s.bufferSize * k
+
+		for i := 0; i < len(out); i++ {
+			for j := 0; j < s.bufferSize; j++ {
+				if i%2 == 0 {
+					out[i][j+offset] = float32(leftBuf[j])
+				} else {
+					out[i][j+offset] = float32(rightBuf[j])
+				}
+			}
+		}
+
+	}
 }
