@@ -3,8 +3,6 @@ package modular
 import (
 	"math"
 
-	"fmt"
-
 	"github.com/dalloriam/synthia"
 )
 
@@ -69,7 +67,6 @@ func (t *toneGenerator) Stream(p []float64) {
 		p[i] = t.tone(t.phase) * (volBuf[i] / math.MaxFloat64) * math.MaxUint16 / 2
 	}
 
-	fmt.Println(p)
 }
 
 func generateSine(phase float64) float64 {
