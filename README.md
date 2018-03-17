@@ -28,9 +28,10 @@ const (
 func main() {
 
 
-	// Open connection to speaker. (Dependency to hajimehoshi/oto is optional but recommended for regular audio playback).
-	// Since Synthia is a dependency-free library, the synthesizer will happily output sound to any struct
-	// that satisfies the io.Writer interface.
+	// Open connection to speaker. (Dependency to hajimehoshi/oto is optional but recommended 
+	// for regular audio playback). Since Synthia is a dependency-free library, the 
+	// synthesizer will happily output sound to any struct that satisfies the io.Writer 
+	// interface.
 	soundOutput, err := oto.NewPlayer(sampleRate, audioChannelCount, bytesPerSample, bufferSize)
 	if err != nil {
 		panic(err)
