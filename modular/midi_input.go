@@ -4,10 +4,8 @@ type constantStreamer struct {
 	value float64
 }
 
-func (c *constantStreamer) Stream(p []float64) {
-	for i := 0; i < len(p); i++ {
-		p[i] = c.value
-	}
+func (c *constantStreamer) Stream() float64 {
+	return c.value
 }
 
 // A MIDIInput allows for live control of the synthesizer

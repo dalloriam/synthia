@@ -1,42 +1,33 @@
 package modular
 
-import (
-	"time"
-
-	"github.com/dalloriam/synthia"
-)
-
-// A Sequencer loops through a note sequence and outputs the corresponding frequencies to a stream
+// A Sequencer loops through a frequency sequence at a pace dictated by the clock
+// and outputs the corresponding frequencies.
 type Sequencer struct {
-	Sequence      []float64
-	StepFrequency *synthia.Knob
-	startTime     time.Time
+	Clock        *Clock
+	Sequence     []float64
+	BeatsPerStep float64
+
+	lastClock float64
 }
 
 // NewSequencer returns a sequencer instance.
-func NewSequencer(sequence []float64, stepDelay float64) *Sequencer {
+func NewSequencer(sequence []float64) *Sequencer {
 	return &Sequencer{
-		Sequence:      sequence,
-		StepFrequency: synthia.NewKnob(stepDelay),
-		startTime:     time.Now(),
+		Sequence:     sequence,
+		lastClock:    -24,
+		BeatsPerStep: 0.5,
 	}
 }
 
-// Stream writes the current sequence frequency to the buffer
-func (s *Sequencer) Stream(p []float64) {
+// Stream returns the current sequence frequency.
+func (s *Sequencer) Stream() float64 {
+	// TODO: Support clock-free looping (time-based)
 
-	stepBuf := make([]float64, len(p))
-	s.StepFrequency.Stream(stepBuf)
+	ticksPerStep := float64(s.Clock.TicksPerBeat) * s.BeatsPerStep
 
-	for i := 0; i < len(p); i++ {
-		numOfSteps := int((time.Since(s.startTime).Seconds() * 1000.0) / float64(stepBuf[i]))
+	currentClock := s.Clock.Stream()
 
-		v := numOfSteps % len(s.Sequence)
+	stepIdx := int(currentClock/ticksPerStep) % len(s.Sequence)
 
-		if numOfSteps > 1000 && v == 0 {
-			s.startTime = time.Now()
-		}
-
-		p[i] = s.Sequence[v]
-	}
+	return s.Sequence[stepIdx]
 }
