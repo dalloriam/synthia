@@ -1,4 +1,4 @@
-package synthia
+package core
 
 // A Knob represents a module parameter that can be manually tweaked as well as plugged in to a line
 type Knob struct {
@@ -20,7 +20,8 @@ func (k *Knob) SetValue(val float64) {
 	k.value = val
 }
 
-// Stream fills the buffer with the current knob value if no line connected. If a line is connected to the knob, it reads from the line instead
+// Stream returns the current knob value if no line is connected. If a line is connected to the knob, it streams from
+// the line instead.
 func (k *Knob) Stream() float64 {
 	if k.Line == nil {
 		return k.value

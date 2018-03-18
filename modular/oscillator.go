@@ -3,32 +3,40 @@ package modular
 import (
 	"math"
 
-	"github.com/dalloriam/synthia"
+	"github.com/dalloriam/synthia/core"
 )
 
-// WaveShape represents a wave in the internal oscillator wavetable
+const (
+	sampleRate = 44100.0
+	twoPi      = 2 * math.Pi
+)
+
 type WaveShape int
 
-const sampleRate = 44100.0
-const twoPi = 2 * math.Pi
+const (
+	SINE WaveShape = iota
+	SQUARE
+	SAW
+	TRIANGLE
+)
 
 // An Oscillator is a simple wave generator
 type Oscillator struct {
-	Frequency *synthia.Knob
-	Volume    *synthia.Knob
+	Frequency *core.Knob // Note frequency (in Hz).
+	Volume    *core.Knob // From 0 to 1
 
-	Sine     synthia.Signal
-	Square   synthia.Signal
-	Saw      synthia.Signal
-	Triangle synthia.Signal
+	Sine     core.Signal // From -1 to 1
+	Square   core.Signal // From -1 to 1
+	Saw      core.Signal // From -1 to 1
+	Triangle core.Signal // From -1 to 1
 
 	phase float64
 }
 
 // NewOscillator returns a new oscillator.
 func NewOscillator() *Oscillator {
-	vol := synthia.NewKnob(math.MaxFloat64)
-	freq := synthia.NewKnob(440)
+	vol := core.NewKnob(math.MaxFloat64)
+	freq := core.NewKnob(440)
 
 	return &Oscillator{
 		Frequency: freq,
@@ -40,10 +48,29 @@ func NewOscillator() *Oscillator {
 	}
 }
 
+func (o *Oscillator) GetOutput(shape WaveShape) core.Signal {
+	var line core.Signal
+
+	switch shape {
+	case SINE:
+		line = o.Sine
+	case SQUARE:
+		line = o.Square
+	case TRIANGLE:
+		line = o.Triangle
+	case SAW:
+		line = o.Saw
+	default:
+		line = o.Sine
+	}
+
+	return line
+}
+
 type toneGenerator struct {
 	phase     float64
-	volume    *synthia.Knob
-	frequency *synthia.Knob
+	volume    *core.Knob
+	frequency *core.Knob
 	tone      func(phase float64) float64
 }
 

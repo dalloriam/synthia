@@ -1,4 +1,4 @@
-package synthia
+package core
 
 // A Mixer is a collection of mixer channels
 type Mixer struct {
@@ -16,8 +16,9 @@ func NewMixer(nbOfChannels int) *Mixer {
 	return &Mixer{chans}
 }
 
-// Stream mixes all the mixer channels in a single audio stream
+// Stream mixes all the mixer channels in a single stereo stream
 func (m *Mixer) Stream(l, r []float64) {
+	// TODO: Improve
 
 	bufSize := len(r)
 

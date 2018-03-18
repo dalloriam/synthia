@@ -22,6 +22,7 @@ func init() {
 	}
 }
 
+// interpolated sin function
 func sin(x float64) float64 {
 	step := x * sineStep
 	if x < 0 {

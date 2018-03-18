@@ -1,24 +1,23 @@
-package synthia
-
-import "math"
+package core
 
 // MixerChannel represents a single mixer channel
 type MixerChannel struct {
-	Input  Signal
-	Volume *Knob // From 0 to Float64Max
-	Pan    *Knob // From -1 to 1
+	Input  Signal // From -1 to 1
+	Volume *Knob  // From 0 to 1
+	Pan    *Knob  // From -1 to 1
 }
 
 // NewMixerChannel initializes a mixer channel
 func NewMixerChannel() *MixerChannel {
 	return &MixerChannel{
 		Input:  nil,
-		Volume: NewKnob(204), // Volume initialized @ 80%,
+		Volume: NewKnob(0.8), // Volume initialized @ 80%,
 		Pan:    NewKnob(0),   // Pan centered by default
 	}
 }
 
-// Stream reads from the channel input and applies the mixer channel volume to the audio stream
+// Stream reads from the channel input and applies the mixer channel volume to the audio stream. It then applies panning
+// if necessary.
 func (c *MixerChannel) Stream(l, r []float64) {
 
 	bufLen := len(r)
@@ -31,9 +30,8 @@ func (c *MixerChannel) Stream(l, r []float64) {
 	} else {
 
 		for i := 0; i < bufLen; i++ {
-			volFactor := c.Volume.Stream() / float64(math.MaxUint8)
 
-			currentSample := c.Input.Stream() * volFactor
+			currentSample := c.Input.Stream() * c.Volume.Stream()
 			pan := c.Pan.Stream()
 
 			if pan == 0 {

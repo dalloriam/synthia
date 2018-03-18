@@ -1,4 +1,4 @@
-package synthia_test
+package core_test
 
 import (
 	"testing"
