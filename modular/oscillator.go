@@ -25,17 +25,14 @@ type Oscillator struct {
 	Frequency *core.Knob // Note frequency (in Hz).
 	Volume    *core.Knob // From 0 to 1
 
-	Sine     core.Signal // From -1 to 1
-	Square   core.Signal // From -1 to 1
-	Saw      core.Signal // From -1 to 1
-	Triangle core.Signal // From -1 to 1
+	Sine, Square, Saw, Triangle core.Signal // From -1 to 1
 
 	phase float64
 }
 
 // NewOscillator returns a new oscillator.
 func NewOscillator() *Oscillator {
-	vol := core.NewKnob(math.MaxFloat64)
+	vol := core.NewKnob(1)
 	freq := core.NewKnob(440)
 
 	return &Oscillator{
@@ -84,7 +81,7 @@ func (t *toneGenerator) incrementPhase(freq float64) {
 func (t *toneGenerator) Stream() float64 {
 
 	t.incrementPhase(t.frequency.Stream())
-	return t.tone(t.phase) * (t.volume.Stream() / math.MaxFloat64)
+	return t.tone(t.phase) * t.volume.Stream()
 
 }
 

@@ -15,7 +15,7 @@ type audioBackend interface {
 	FrameSize() int
 }
 
-// NewSynth returns a new synthesizer with an already-initialized mixer
+// New returns a new synthesizer with an already-initialized mixer
 func New(channelCount, bufferSize int, output audioBackend) *Synthia {
 	m := core.NewMixer(channelCount)
 
