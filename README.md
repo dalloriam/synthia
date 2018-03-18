@@ -13,15 +13,15 @@ package main
 
 import (
 	"github.com/gordonklaus/portaudio"
-	"github.com/dalloriam/synthia"
 	"github.com/dalloriam/synthia/modular"
+	"github.com/dalloriam/synthia"
 )
 
 const (
 	bufferSize = 512 // Size of the audio buffer.
 	sampleRate = 44100 // Audio sample rate.
 	audioChannelCount = 2 // Stereo.
-	mixerChannelCount = 3 // Three oscillators.
+	mixerChannelCount = 2 // Three oscillators.
 )
 
 type AudioBackend struct {
@@ -41,7 +41,7 @@ func (b *AudioBackend) FrameSize() int {
 	return b.params.FramesPerBuffer
 }
 
-func port() *AudioBackend {
+func newBackend() *AudioBackend {
 	// Quick-and-dirty way to initialize portaudio
 	if err := portaudio.Initialize(); err != nil {
 		panic(err)
@@ -66,27 +66,35 @@ func port() *AudioBackend {
 
 func main() {
 
-	backend := port()
+	backend := newBackend()
 
+	// Set tempo to 60 bpm
 	clock := modular.NewClock()
 	clock.Tempo.SetValue(60)
 
+	// Set the sequence to a C Major scale
 	seq := modular.NewSequencer([]float64{130.81, 146.83, 164.1, 174.61, 196, 220, 246.94, 261.63})
 	seq.Clock = clock
+
+	// Play the sequence in eighth notes
 	seq.BeatsPerStep = 0.25
 
-	// Create an oscillator and set it to 220Hz.
+	// Create an oscillator and attach the sequencer to it.
 	osc1 := modular.NewOscillator()
 	osc1.Frequency.Line = seq
 
-	// Create the synthesizer with three mixer channels and set it to output to our speakers.
+	// Create the synthesizer with two mixer channels and set it to output to our audio backend.
 	synth := synthia.New(mixerChannelCount, bufferSize, backend)
 
-	// Map three different waves to the three outputs of our mixer.
-	synth.Mixer.Channels[0].Input = osc1.Square
+	// Map two different waves to the two outputs of our mixer.
+	synth.Mixer.Channels[0].Input = osc1.Sine
+	synth.Mixer.Channels[1].Input = osc1.Triangle
+
+	// Pan the sine wave to the right channel and the triangle wave to the left channel
+	synth.Mixer.Channels[0].Pan.SetValue(-1)
+	synth.Mixer.Channels[1].Pan.SetValue(1)
 
 	// Block until terminated
 	select{}
 }
-
 ```
