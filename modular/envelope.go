@@ -169,7 +169,6 @@ func (e *Envelope) Stream() float64 {
 }
 
 func computeSlope(ratio, length, tgt float64, isExp bool) (float64, float64) {
-	// Info: this function is log. when ratio is positive, exp. otherwise
 
 	var base, mult float64
 	mult = math.Exp(-math.Log((1+ratio)/ratio) / length)
