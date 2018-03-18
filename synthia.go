@@ -16,7 +16,7 @@ type audioBackend interface {
 }
 
 // NewSynth returns a new synthesizer with an already-initialized mixer
-func NewSynth(channelCount, bufferSize int, output audioBackend) *Synthia {
+func New(channelCount, bufferSize int, output audioBackend) *Synthia {
 	m := core.NewMixer(channelCount)
 
 	synth := &Synthia{

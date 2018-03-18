@@ -3,23 +3,21 @@ package core_test
 import (
 	"testing"
 
-	"github.com/dalloriam/synthia"
+	"github.com/dalloriam/synthia/core"
 )
 
 type mockLine struct {
 	Val float64
 }
 
-func (m *mockLine) Stream(p []float64) {
-	for i := 0; i < len(p); i++ {
-		p[i] = m.Val
-	}
+func (m *mockLine) Stream() float64 {
+	return m.Val
 }
 
 func TestNewKnob(t *testing.T) {
 
 	t.Run("initializes line to nil", func(t *testing.T) {
-		k := synthia.NewKnob(0.0)
+		k := core.NewKnob(0.0)
 
 		if k.Line != nil {
 			t.Errorf("doesn't initialize knob line to nil")
@@ -27,16 +25,14 @@ func TestNewKnob(t *testing.T) {
 	})
 
 	t.Run("initializes value to proper default", func(t *testing.T) {
-		val := 42.42
+		expected := 42.42
 
-		k := synthia.NewKnob(val)
+		k := core.NewKnob(expected)
 
-		buf := make([]float64, 1)
+		actual := k.Stream()
 
-		k.Stream(buf)
-
-		if buf[0] != val {
-			t.Errorf("expected knob value to be %f, got %f", val, buf[0])
+		if actual != expected {
+			t.Errorf("expected knob value to be %f, got %f", expected, actual)
 		}
 	})
 }
@@ -44,18 +40,16 @@ func TestNewKnob(t *testing.T) {
 func TestKnob_SetValue(t *testing.T) {
 
 	t.Run("properly sets value", func(t *testing.T) {
-		k := synthia.NewKnob(0.0)
+		k := core.NewKnob(0.0)
 
 		newVal := 42.42
 
 		k.SetValue(newVal)
 
-		buf := make([]float64, 1)
+		actual := k.Stream()
 
-		k.Stream(buf)
-
-		if buf[0] != newVal {
-			t.Errorf("expected knob value to be %f, got %f", newVal, buf[0])
+		if actual != newVal {
+			t.Errorf("expected knob value to be %f, got %f", newVal, actual)
 		}
 	})
 }
@@ -64,41 +58,26 @@ func TestKnob_Stream(t *testing.T) {
 	t.Run("returns value if no line connected", func(t *testing.T) {
 		val := 18.0
 
-		k := synthia.NewKnob(val)
-		buf := make([]float64, 1)
+		k := core.NewKnob(val)
 
-		k.Stream(buf)
+		actual := k.Stream()
 
-		if val != buf[0] {
-			t.Errorf("expected value %f, got %f", val, buf[0])
+		if actual != val {
+			t.Errorf("expected value %f, got %f", val, actual)
 		}
 	})
 
 	t.Run("streams from line if line connected", func(t *testing.T) {
 		line := &mockLine{42}
 
-		knob := synthia.NewKnob(18.0)
-
-		buf := make([]float64, 1)
+		knob := core.NewKnob(18.0)
 
 		knob.Line = line
 
-		knob.Stream(buf)
+		actual := knob.Stream()
 
-		if buf[0] != line.Val {
-			t.Errorf("expected value %f, got %f", line.Val, buf[0])
-		}
-	})
-
-	t.Run("fills arbitrarily-sized buffer", func(t *testing.T) {
-
-		for i := 0; i < 100; i++ {
-			line := &mockLine{42}
-			knob := synthia.NewKnob(18.0)
-			knob.Line = line
-
-			buf := make([]float64, i)
-			knob.Stream(buf)
+		if actual != line.Val {
+			t.Errorf("expected value %f, got %f", line.Val, actual)
 		}
 	})
 }

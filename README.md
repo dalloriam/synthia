@@ -80,7 +80,7 @@ func main() {
 	osc1.Frequency.Line = seq
 
 	// Create the synthesizer with three mixer channels and set it to output to our speakers.
-	synth := synthia.NewSynth(mixerChannelCount, bufferSize, backend)
+	synth := synthia.New(mixerChannelCount, bufferSize, backend)
 
 	// Map three different waves to the three outputs of our mixer.
 	synth.Mixer.Channels[0].Input = osc1.Square
