@@ -8,14 +8,16 @@ import (
 
 type stage int
 
+// These stages represent the different envelope stages.
 const (
-	STAGE_OFF stage = iota
-	STAGE_ATTACK
-	STAGE_DECAY
-	STAGE_SUSTAIN
-	STAGE_RELEASE
+	StageOff stage = iota
+	StageAttack
+	StageDecay
+	StageSustain
+	StageRelease
 )
 
+// An Envelope represents an ADSR envelope.
 type Envelope struct {
 	currentStage stage
 	lastOutValue float64
@@ -33,9 +35,10 @@ type Envelope struct {
 	Trigger core.Signal
 }
 
+// NewEnvelope returns a new ADSR envelope generator.
 func NewEnvelope() *Envelope {
 	return &Envelope{
-		currentStage:   STAGE_OFF,
+		currentStage:   StageOff,
 		lastOutValue:   0,
 		lastTrigger:    0,
 		currentTrigger: 0,
@@ -60,7 +63,7 @@ func (e *Envelope) off() float64 {
 			1,
 			false,
 		)
-		e.currentStage = STAGE_ATTACK
+		e.currentStage = StageAttack
 	}
 	return 0
 }
@@ -79,7 +82,7 @@ func (e *Envelope) attack() float64 {
 			sustain,
 			true,
 		)
-		e.currentStage = STAGE_DECAY
+		e.currentStage = StageDecay
 	}
 
 	return val
@@ -92,7 +95,7 @@ func (e *Envelope) decay() float64 {
 		// Switch to release or hold (depending if still triggered)
 		if e.currentTrigger > 0 {
 			// Hold
-			e.currentStage = STAGE_SUSTAIN
+			e.currentStage = StageSustain
 		} else {
 			// Release
 			e.base, e.multiplier = computeSlope(
@@ -101,7 +104,7 @@ func (e *Envelope) decay() float64 {
 				0,
 				true,
 			)
-			e.currentStage = STAGE_RELEASE
+			e.currentStage = StageRelease
 		}
 	}
 
@@ -117,7 +120,7 @@ func (e *Envelope) sustain() float64 {
 			0,
 			true,
 		)
-		e.currentStage = STAGE_RELEASE
+		e.currentStage = StageRelease
 	}
 	return e.lastOutValue
 }
@@ -131,18 +134,19 @@ func (e *Envelope) release() float64 {
 			1,
 			false,
 		)
-		e.currentStage = STAGE_ATTACK
+		e.currentStage = StageAttack
 	}
 
 	val := e.base + e.lastOutValue*e.multiplier
 
 	if val < math.SmallestNonzeroFloat64 {
-		e.currentStage = STAGE_OFF
+		e.currentStage = StageOff
 	}
 
 	return val
 }
 
+// Stream streams a sample from the envelope
 func (e *Envelope) Stream() float64 {
 	var out float64
 
@@ -150,15 +154,15 @@ func (e *Envelope) Stream() float64 {
 	e.currentTrigger = e.Trigger.Stream()
 
 	switch e.currentStage {
-	case STAGE_OFF:
+	case StageOff:
 		out = e.off()
-	case STAGE_ATTACK:
+	case StageAttack:
 		out = e.attack()
-	case STAGE_DECAY:
+	case StageDecay:
 		out = e.decay()
-	case STAGE_SUSTAIN:
+	case StageSustain:
 		out = e.sustain()
-	case STAGE_RELEASE:
+	case StageRelease:
 		out = e.release()
 	default:
 		out = 0
