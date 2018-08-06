@@ -20,11 +20,16 @@ func (k *Knob) SetValue(val float64) {
 	k.value = val
 }
 
+// GetValue returns the last value of the knob without altering its state.
+func (k *Knob) GetValue() float64 {
+	return k.value
+}
+
 // Stream returns the current knob value if no line is connected. If a line is connected to the knob, it streams from
 // the line instead.
 func (k *Knob) Stream() float64 {
-	if k.Line == nil {
-		return k.value
+	if k.Line != nil {
+		k.value = k.Line.Stream()
 	}
-	return k.Line.Stream()
+	return k.value
 }
