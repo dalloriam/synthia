@@ -146,7 +146,7 @@ func (e *Envelope) release() float64 {
 	return val
 }
 
-// Stream streams a sample from the envelope
+// Stream returns the current envelope phase.
 func (e *Envelope) Stream() float64 {
 	var out float64
 

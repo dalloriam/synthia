@@ -11,8 +11,10 @@ const (
 	twoPi      = 2 * math.Pi
 )
 
+// WaveShape represents the possible shapes of an oscillator wave.
 type WaveShape int
 
+// Available shapes.
 const (
 	SINE WaveShape = iota
 	SQUARE
@@ -45,6 +47,7 @@ func NewOscillator() *Oscillator {
 	}
 }
 
+// GetOutput returns the signal corresponding to the provided wave shape.
 func (o *Oscillator) GetOutput(shape WaveShape) core.Signal {
 	var line core.Signal
 
