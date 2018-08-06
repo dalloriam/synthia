@@ -6,15 +6,12 @@ type Sequencer struct {
 	Clock        *Clock
 	Sequence     []float64
 	BeatsPerStep float64
-
-	lastClock float64
 }
 
 // NewSequencer returns a sequencer instance.
 func NewSequencer(sequence []float64) *Sequencer {
 	return &Sequencer{
 		Sequence:     sequence,
-		lastClock:    -24,
 		BeatsPerStep: 0.5,
 	}
 }
