@@ -81,3 +81,51 @@ func TestKnob_Stream(t *testing.T) {
 		}
 	})
 }
+
+func TestKnob_GetValue(t *testing.T) {
+	t.Run("returns last set value when no line connected", func(t *testing.T) {
+		oldValue := 14.0
+		newValue := 36.0
+
+		knob := core.NewKnob(oldValue)
+
+		if knob.GetValue() != oldValue {
+			t.Errorf("expected value %f, got %f", oldValue, knob.GetValue())
+		}
+
+		knob.SetValue(newValue)
+
+		if knob.GetValue() != newValue {
+			t.Errorf("expected value %f, got %f", newValue, knob.GetValue())
+		}
+	})
+
+	t.Run("returns last streamed value when line connected", func(t *testing.T) {
+		line := &mockLine{18}
+
+		knob := core.NewKnob(42.0)
+
+		knob.Line = line
+		knob.Stream()
+
+		if knob.GetValue() != line.Val {
+			t.Errorf("expected value %f, got %f", line.Val, knob.GetValue())
+		}
+	})
+
+	t.Run("doesnt mutate knob value or call stream", func(t *testing.T) {
+		line := &mockLine{18}
+
+		expected := 42.0
+
+		knob := core.NewKnob(expected)
+
+		knob.Line = line
+
+		actual := knob.GetValue()
+
+		if actual != expected {
+			t.Errorf("expected value %f, got %f", expected, actual)
+		}
+	})
+}
