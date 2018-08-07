@@ -7,14 +7,14 @@ import "github.com/dalloriam/synthia/core"
 type Sequencer struct {
 	Clock        core.Signal
 	Sequence     []float64
-	BeatsPerStep float64
+	BeatsPerStep *core.Knob
 }
 
 // NewSequencer returns a sequencer instance.
 func NewSequencer(sequence []float64) *Sequencer {
 	return &Sequencer{
 		Sequence:     sequence,
-		BeatsPerStep: 0.5,
+		BeatsPerStep: core.NewKnob(0.5),
 	}
 }
 
@@ -22,7 +22,7 @@ func NewSequencer(sequence []float64) *Sequencer {
 func (s *Sequencer) Stream() float64 {
 	// TODO: Support clock-free looping (time-based)
 
-	ticksPerStep := float64(clockTicksPerBeat) * s.BeatsPerStep
+	ticksPerStep := float64(clockTicksPerBeat) * s.BeatsPerStep.Stream()
 
 	currentClock := s.Clock.Stream()
 
