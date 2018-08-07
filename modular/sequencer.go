@@ -1,9 +1,11 @@
 package modular
 
+import "github.com/dalloriam/synthia/core"
+
 // A Sequencer loops through a frequency sequence at a pace dictated by the clock
 // and outputs the corresponding frequencies.
 type Sequencer struct {
-	Clock        *Clock
+	Clock        core.Signal
 	Sequence     []float64
 	BeatsPerStep float64
 }
@@ -20,7 +22,7 @@ func NewSequencer(sequence []float64) *Sequencer {
 func (s *Sequencer) Stream() float64 {
 	// TODO: Support clock-free looping (time-based)
 
-	ticksPerStep := float64(s.Clock.TicksPerBeat) * s.BeatsPerStep
+	ticksPerStep := float64(clockTicksPerBeat) * s.BeatsPerStep
 
 	currentClock := s.Clock.Stream()
 
