@@ -100,8 +100,7 @@ func generateSquare(phase float64) float64 {
 }
 
 func generateSaw(phase float64) float64 {
-	p := phase / twoPi
-	return (2 * p) - 1
+	return phase / twoPi
 }
 
 func generateTriangle(phase float64) float64 {

@@ -1,6 +1,8 @@
 package synthia
 
-import "github.com/dalloriam/synthia/core"
+import (
+	"github.com/dalloriam/synthia/core"
+)
 
 // Synthia is the core synthesizer struct
 type Synthia struct {
