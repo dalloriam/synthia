@@ -1,3 +1,5 @@
+// Much of the magic here provided by
+// https://github.com/brettbuddin/shaden/blob/master/unit/adsr.go
 package modular
 
 import (
@@ -44,7 +46,7 @@ func NewEnvelope() *Envelope {
 		currentTrigger: 0,
 
 		CurveRatio: core.NewKnob(0.01),
-		Attack:     core.NewKnob(50),
+		Attack:     core.NewKnob(0.5),
 		Decay:      core.NewKnob(50),
 		Sustain:    core.NewKnob(0.5),
 		Release:    core.NewKnob(50),
@@ -54,12 +56,16 @@ func NewEnvelope() *Envelope {
 	}
 }
 
+func (e *Envelope) msToSamples(msCount float64) float64 {
+	return msCount * sampleRate * 0.001
+}
+
 func (e *Envelope) off() float64 {
 	if e.lastTrigger <= 0 && e.currentTrigger > 0 {
 		// Switch to attack state
 		e.base, e.multiplier = computeSlope(
 			e.CurveRatio.Stream(),
-			e.Attack.Stream(),
+			e.msToSamples(e.Attack.Stream()),
 			1,
 			false,
 		)
@@ -74,8 +80,8 @@ func (e *Envelope) attack() float64 {
 	if val >= 1 {
 		// Switch to decay state
 		ratio := e.CurveRatio.Stream()
-		decay := e.Decay.Stream()
-		sustain := e.Sustain.Stream()
+		decay := e.msToSamples(e.Decay.Stream())
+		sustain := e.msToSamples(e.Sustain.Stream())
 		e.base, e.multiplier = computeSlope(
 			ratio,
 			decay,
@@ -91,7 +97,7 @@ func (e *Envelope) attack() float64 {
 func (e *Envelope) decay() float64 {
 	val := e.base + e.multiplier*e.lastOutValue
 
-	if val <= e.Sustain.Stream() {
+	if val <= e.msToSamples(e.Sustain.Stream()) {
 		// Switch to release or hold (depending if still triggered)
 		if e.currentTrigger > 0 {
 			// Hold
@@ -100,7 +106,7 @@ func (e *Envelope) decay() float64 {
 			// Release
 			e.base, e.multiplier = computeSlope(
 				e.CurveRatio.Stream(),
-				e.Release.Stream(),
+				e.msToSamples(e.Release.Stream()),
 				0,
 				true,
 			)
@@ -116,7 +122,7 @@ func (e *Envelope) sustain() float64 {
 		// Switch to release state
 		e.base, e.multiplier = computeSlope(
 			e.CurveRatio.Stream(),
-			e.Release.Stream(),
+			e.msToSamples(e.Release.Stream()),
 			0,
 			true,
 		)
@@ -130,7 +136,7 @@ func (e *Envelope) release() float64 {
 		// Switch to attack state
 		e.base, e.multiplier = computeSlope(
 			e.CurveRatio.Stream(),
-			e.Attack.Stream(),
+			e.msToSamples(e.Attack.Stream()),
 			1,
 			false,
 		)

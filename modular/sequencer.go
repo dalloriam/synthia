@@ -8,6 +8,9 @@ type Sequencer struct {
 	Clock        core.Signal
 	Sequence     []float64
 	BeatsPerStep *core.Knob
+	Trigger      *Trigger
+
+	lastStepIdx int
 }
 
 // NewSequencer returns a sequencer instance.
@@ -15,6 +18,8 @@ func NewSequencer(sequence []float64) *Sequencer {
 	return &Sequencer{
 		Sequence:     sequence,
 		BeatsPerStep: core.NewKnob(0.5),
+		Trigger:      NewTrigger(),
+		lastStepIdx:  -1,
 	}
 }
 
@@ -27,6 +32,11 @@ func (s *Sequencer) Stream() float64 {
 	currentClock := s.Clock.Stream()
 
 	stepIdx := int(currentClock/ticksPerStep) % len(s.Sequence)
+
+	if stepIdx != s.lastStepIdx {
+		s.lastStepIdx = stepIdx
+		s.Trigger.ShouldTrigger = true
+	}
 
 	return s.Sequence[stepIdx]
 }
