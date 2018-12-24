@@ -65,36 +65,52 @@ func newBackend() *AudioBackend {
 }
 
 func main() {
-
 	backend := newBackend()
 
-	// Set tempo to 60 bpm
-	clock := modular.NewClock()
-	clock.Tempo.SetValue(60)
+	// Create a new oscillator.
+	osc := modular.NewOscillator()
 
-	// Set the sequence to a C Major scale
+	// Instantiate a clock @ 120bpm.
+	clock := modular.NewClock()
+	clock.Tempo.SetValue(120)
+
+	// Define a sequencer playing a C Major scale in quarter notes.
 	seq := modular.NewSequencer([]float64{130.81, 146.83, 164.1, 174.61, 196, 220, 246.94, 261.63})
 	seq.Clock = clock
+	seq.BeatsPerStep.SetValue(0.50)
 
-	// Play the sequence in eighth notes
-	seq.BeatsPerStep = 0.25
+	// Create an ADSR envelope with a release time of 800ms.
+	// Attack defaults to 0.5ms, decay to 50ms, and sustain to 0.5ms.
+	attackEnvelope := modular.NewEnvelope()
+	attackEnvelope.Release.SetValue(800)
 
-	// Create an oscillator and attach the sequencer to it.
-	osc1 := modular.NewOscillator()
-	osc1.Frequency.Line = seq
+	// Modulate the frequency of the oscillator with the defined sequencer.
+	osc.Frequency.Line = seq
 
-	// Create the synthesizer with two mixer channels and set it to output to our audio backend.
+	// Modulate the volume of the oscillator with the envelope.
+	osc.Volume.Line = attackEnvelope
+
+	// Trigger the envelope on every sequencer note change.
+	attackEnvelope.Trigger = seq.Trigger
+
+	// Define a high-pass filter taking in the Sawtooth output of the oscillator.
+	filter := modular.NewFilter(modular.HighPassFilter)
+	filter.Input = osc.Saw
+
+	// Define an LFO running from 300 to 2000 @ 1Hz.
+	filterLfo := modular.NewLFO(2000, 300)
+	filterLfo.Osc.Frequency.SetValue(1)
+
+	// Modulate the filter cutoff with the LFO.
+	filter.Cutoff.Line = filterLfo
+	
+	// Create a synthesizer instance.
 	synth := synthia.New(mixerChannelCount, bufferSize, backend)
 
-	// Map two different waves to the two outputs of our mixer.
-	synth.Mixer.Channels[0].Input = osc1.Sine
-	synth.Mixer.Channels[1].Input = osc1.Triangle
+	// Patch the filter output to mixer channel 1.
+	synth.Mixer.Channels[0].Input = filter
 
-	// Pan the sine wave to the right channel and the triangle wave to the left channel
-	synth.Mixer.Channels[0].Pan.SetValue(-1)
-	synth.Mixer.Channels[1].Pan.SetValue(1)
-
-	// Block until terminated
-	select{}
+	// Wait until user exit.
+	select {}
 }
 ```

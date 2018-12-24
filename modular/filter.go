@@ -6,80 +6,63 @@ import (
 	"github.com/dalloriam/synthia/core"
 )
 
-type coefficients struct {
-	A1, A2, A3, M0, M1, M2 float64
-	A, ASqrt               float64
-}
+type FilterType int
 
-func newCoefficients() *coefficients {
-	return &coefficients{A: 1, ASqrt: 1}
-}
+const (
+	LowPassFilter FilterType = iota
+	HighPassFilter
+)
 
-func (c *coefficients) computeA(g, k float64) {
-	c.A1 = 1 / (1 + g*(g+k))
-	c.A2 = g * c.A1
-	c.A3 = g * c.A2
-}
-
-func (c *coefficients) computeK(q float64, useGain bool) float64 {
-	var denom float64
-	if useGain {
-		denom = q * c.A
-	} else {
-		denom = q
-	}
-
-	return 1 / denom
-}
-
-func (c *coefficients) Update(cutoffFrequency, q float64, filterType string) {
-	g := tan((cutoffFrequency / sampleRate) * math.Pi)
-	k := c.computeK(q, false) // TODO: Support gain
-
-	switch filterType {
-	case "lowpass":
-		c.computeA(g, k)
-		c.M0 = 0
-		c.M1 = 0
-		c.M2 = 1
-	}
-}
+const q = 0.5
 
 type Filter struct {
 	Cutoff *core.Knob
 	Input  core.Signal
+	Type   FilterType
 
-	coeff        *coefficients
-	v1, v2, v3   float64
 	ic1eq, ic2eq float64
 }
 
-func NewFilter() *Filter {
+func NewFilter(filterType FilterType) *Filter {
 	filt := &Filter{
 		Cutoff: core.NewKnob(500), // Default cutoff frequency is 500hz.
-		coeff:  newCoefficients(),
+		Type:   filterType,
 	}
 
 	return filt
-}
-
-func (f *Filter) lpf(x, alpha, x0 float64) float64 {
-	return alpha * (x - x0)
 }
 
 func (f *Filter) Stream() float64 {
 	if f.Input == nil {
 		return 0
 	}
-	f.coeff.Update(f.Cutoff.Stream()*10, 1, "lowpass")
+	g := tan((f.Cutoff.Stream() * 10 / sampleRate) * math.Pi)
+	k := 1 / q
+
+	a1 := 1 / (1 + g*(g+k))
+	a2 := g * a1
+	a3 := g * a2
+
+	var m0, m1, m2 float64
+
+	switch f.Type {
+	case LowPassFilter:
+		m0 = 0
+		m1 = 0
+		m2 = 1
+	case HighPassFilter:
+		m0 = 1
+		m1 = -k
+		m2 = -1
+	}
 
 	v0 := f.Input.Stream()
-	f.v3 = v0 - f.ic2eq
-	f.v1 = f.coeff.A1 * f.ic1eq * f.coeff.A2 * f.v3
-	f.v2 = f.ic2eq + f.coeff.A2*f.ic1eq + f.coeff.A3*f.v3
+	v3 := v0 - f.ic2eq
+	v1 := a1 * f.ic1eq * a2 * v3
+	v2 := f.ic2eq + a2*f.ic1eq + a3*v3
 
-	f.ic1eq = 2*f.v1 - f.ic1eq
-	f.ic2eq = 2*f.v2 - f.ic2eq
+	f.ic1eq = 2*v1 - f.ic1eq
+	f.ic2eq = 2*v2 - f.ic2eq
 
-	return f.coeff.M0*v0 + f.coeff.M1*f.v1 + f.coeff.M2*f.v2
+	return m0*v0 + m1*v1 + m2*v2
 }
