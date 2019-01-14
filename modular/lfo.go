@@ -12,7 +12,6 @@ type LFO struct {
 func NewLFO(maxValue, minValue float64) *LFO {
 	internalOsc := *NewOscillator()
 	internalOsc.Frequency.SetValue(4)
-	internalOsc.Volume.SetValue(1)
 
 	return &LFO{
 		Osc:      internalOsc,

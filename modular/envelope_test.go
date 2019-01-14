@@ -21,7 +21,7 @@ func TestNewEnvelope(t *testing.T) {
 				currentTrigger: 0,
 
 				CurveRatio: core.NewKnob(0.01),
-				Attack:     core.NewKnob(0.5),
+				Attack:     core.NewKnob(50),
 				Decay:      core.NewKnob(50),
 				Sustain:    core.NewKnob(0.5),
 				Release:    core.NewKnob(50),

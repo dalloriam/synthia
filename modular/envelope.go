@@ -46,7 +46,7 @@ func NewEnvelope() *Envelope {
 		currentTrigger: 0,
 
 		CurveRatio: core.NewKnob(0.01),
-		Attack:     core.NewKnob(0.5),
+		Attack:     core.NewKnob(50),
 		Decay:      core.NewKnob(50),
 		Sustain:    core.NewKnob(0.5),
 		Release:    core.NewKnob(50),
@@ -147,6 +147,7 @@ func (e *Envelope) release() float64 {
 
 	if val < math.SmallestNonzeroFloat64 {
 		e.currentStage = StageOff
+		return 0
 	}
 
 	return val
@@ -175,7 +176,7 @@ func (e *Envelope) Stream() float64 {
 	}
 
 	e.lastOutValue = out
-	return out
+	return math.Min(out, 1.0)
 }
 
 func computeSlope(ratio, length, tgt float64, isExp bool) (float64, float64) {

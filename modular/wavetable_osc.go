@@ -10,7 +10,6 @@ type WaveTable struct {
 
 	Frequency *core.Knob
 	Position  *core.Knob
-	Volume    *core.Knob
 
 	generator *toneGenerator
 }
@@ -23,11 +22,10 @@ func NewWaveTable(data [][]float64) (*WaveTable, error) {
 	wt := &WaveTable{
 		Data:      data,
 		Frequency: core.NewKnob(440),
-		Volume:    core.NewKnob(1),
 		Position:  core.NewKnob(0),
 	}
 
-	wt.generator = &toneGenerator{phase: 0, volume: wt.Volume, frequency: wt.Frequency, tone: wt.tone}
+	wt.generator = &toneGenerator{phase: 0, frequency: wt.Frequency, tone: wt.tone}
 
 	return wt, nil
 }

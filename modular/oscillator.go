@@ -25,7 +25,6 @@ const (
 // An Oscillator is a simple wave generator
 type Oscillator struct {
 	Frequency *core.Knob // Note frequency (in Hz).
-	Volume    *core.Knob // From 0 to 1
 
 	Sine, Square, Saw, Triangle core.Signal // From -1 to 1
 
@@ -34,16 +33,14 @@ type Oscillator struct {
 
 // NewOscillator returns a new oscillator.
 func NewOscillator() *Oscillator {
-	vol := core.NewKnob(1)
 	freq := core.NewKnob(440)
 
 	return &Oscillator{
 		Frequency: freq,
-		Volume:    vol,
-		Sine:      &toneGenerator{0.0, vol, freq, generateSine},
-		Square:    &toneGenerator{0.0, vol, freq, generateSquare},
-		Saw:       &toneGenerator{0.0, vol, freq, generateSaw},
-		Triangle:  &toneGenerator{0.0, vol, freq, generateTriangle},
+		Sine:      &toneGenerator{0.0, freq, generateSine},
+		Square:    &toneGenerator{0.0, freq, generateSquare},
+		Saw:       &toneGenerator{0.0, freq, generateSaw},
+		Triangle:  &toneGenerator{0.0, freq, generateTriangle},
 	}
 }
 
@@ -69,7 +66,6 @@ func (o *Oscillator) GetOutput(shape WaveShape) core.Signal {
 
 type toneGenerator struct {
 	phase     float64
-	volume    *core.Knob
 	frequency *core.Knob
 	tone      func(phase float64) float64
 }
@@ -84,7 +80,7 @@ func (t *toneGenerator) incrementPhase(freq float64) {
 func (t *toneGenerator) Stream() float64 {
 
 	t.incrementPhase(t.frequency.Stream())
-	return t.tone(t.phase) * t.volume.Stream()
+	return t.tone(t.phase)
 
 }
 

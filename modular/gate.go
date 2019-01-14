@@ -1,19 +1,19 @@
 package modular
 
-import "github.com/dalloriam/synthia/core"
-
-// A Gate applies a volume multiplier from the Trigger to the Input signal.
 type Gate struct {
-	Input   core.Signal
-	Trigger core.Signal
+	Opened bool
 }
 
 // NewGate returns an empty gate.
 func NewGate() *Gate {
-	return &Gate{}
+	return &Gate{Opened: false}
 }
 
 // Stream streams a sample from the gate.
 func (g *Gate) Stream() float64 {
-	return g.Input.Stream() * g.Trigger.Stream()
+	if g.Opened {
+		return 1
+	} else {
+		return 0
+	}
 }

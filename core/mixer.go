@@ -13,7 +13,7 @@ func NewMixer(nbOfChannels int) *Mixer {
 		chans[i] = NewMixerChannel()
 	}
 
-	return &Mixer{chans}
+	return &Mixer{Channels: chans}
 }
 
 // Stream mixes all the mixer channels in a single stereo stream
