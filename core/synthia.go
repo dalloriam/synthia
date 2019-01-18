@@ -1,14 +1,10 @@
-package synthia
-
-import (
-	"github.com/dalloriam/synthia/core"
-)
+package core
 
 // Synthia is the core synthesizer struct
 type Synthia struct {
 	bufferSize int
 	chunkSize  int
-	Mixer      *core.Mixer
+	Mixer      *Mixer
 	output     audioBackend
 }
 
@@ -18,8 +14,8 @@ type audioBackend interface {
 }
 
 // New returns a new synthesizer with an already-initialized mixer
-func New(channelCount, bufferSize int, output audioBackend) *Synthia {
-	m := core.NewMixer(channelCount)
+func NewSynth(channelCount, bufferSize int, output audioBackend) *Synthia {
+	m := NewMixer(channelCount)
 
 	synth := &Synthia{
 		bufferSize: bufferSize,

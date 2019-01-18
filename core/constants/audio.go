@@ -1,5 +1,6 @@
 package constants
 
 const (
-	SampleRate = 44100.0
+	ChannelCount = 2 // Always use stereo.
+	SampleRate   = 44100.0
 )
