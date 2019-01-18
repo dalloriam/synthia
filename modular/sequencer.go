@@ -14,8 +14,8 @@ type Sequencer struct {
 	Gate    *Gate
 	Trigger *Trigger
 
-	PitchSequence []float64
-	GateSequence  []float64
+	Sequence     []float64
+	GateSequence []float64
 
 	currentStep int // Current step stores the current step in the sequence.
 	tickCounter int // Pulse counter counts the number of clock pulses since the last step.
@@ -24,11 +24,11 @@ type Sequencer struct {
 // NewSequencer returns a sequencer instance.
 func NewSequencer() *Sequencer {
 	return &Sequencer{
-		PitchSequence: []float64{130.81, 146.83, 164.1, 174.61, 196, 220, 246.94, 261.63},
-		GateSequence:  []float64{0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5},
-		BeatsPerStep:  core.NewKnob(0.5),
-		Gate:          NewGate(),
-		Trigger:       NewTrigger(),
+		Sequence:     []float64{130.81, 146.83, 164.1, 174.61, 196, 220, 246.94, 261.63},
+		GateSequence: []float64{0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5},
+		BeatsPerStep: core.NewKnob(0.5),
+		Gate:         NewGate(),
+		Trigger:      NewTrigger(),
 
 		currentStep: 0,
 		tickCounter: 0,
@@ -36,7 +36,7 @@ func NewSequencer() *Sequencer {
 }
 
 func (s *Sequencer) incrementStep() {
-	if s.currentStep+1 >= len(s.PitchSequence) {
+	if s.currentStep+1 >= len(s.Sequence) {
 		s.currentStep = 0
 	} else {
 		s.currentStep++
@@ -67,5 +67,5 @@ func (s *Sequencer) Stream() float64 {
 		s.Gate.Opened = true
 	}
 
-	return s.PitchSequence[s.currentStep]
+	return s.Sequence[s.currentStep]
 }
