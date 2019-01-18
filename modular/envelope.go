@@ -5,6 +5,8 @@ package modular
 import (
 	"math"
 
+	"github.com/dalloriam/synthia/core/constants"
+
 	"github.com/dalloriam/synthia/core"
 )
 
@@ -57,7 +59,7 @@ func NewEnvelope() *Envelope {
 }
 
 func (e *Envelope) msToSamples(msCount float64) float64 {
-	return msCount * sampleRate * 0.001
+	return msCount * constants.SampleRate * 0.001
 }
 
 func (e *Envelope) off() float64 {

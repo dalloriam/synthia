@@ -3,6 +3,8 @@ package modular
 import (
 	"math"
 
+	"github.com/dalloriam/synthia/core/constants"
+
 	"github.com/dalloriam/synthia/core"
 )
 
@@ -36,7 +38,7 @@ func (f *Filter) Stream() float64 {
 	if f.Input == nil {
 		return 0
 	}
-	g := tan((f.Cutoff.Stream() * 10 / sampleRate) * math.Pi)
+	g := tan((f.Cutoff.Stream() * 10 / constants.SampleRate) * math.Pi)
 	k := 1 / q
 
 	a1 := 1 / (1 + g*(g+k))

@@ -2,6 +2,7 @@ package modular
 
 import (
 	"github.com/dalloriam/synthia/core"
+	"github.com/dalloriam/synthia/core/constants"
 	"github.com/pkg/errors"
 )
 
@@ -32,7 +33,7 @@ func NewWaveTable(data [][]float64) (*WaveTable, error) {
 
 func (wt *WaveTable) tone(phase float64) float64 {
 	wtPos := int(wt.Position.Stream())
-	return wt.Data[wtPos][int(phase/twoPi*float64(len(wt.Data[wtPos])))]
+	return wt.Data[wtPos][int(phase/constants.TwoPi*float64(len(wt.Data[wtPos])))]
 }
 
 // Stream returns the current value at the current wavetable position.

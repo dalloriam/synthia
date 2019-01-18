@@ -1,14 +1,8 @@
 package modular
 
 import (
-	"math"
-
 	"github.com/dalloriam/synthia/core"
-)
-
-const (
-	sampleRate = 44100.0
-	twoPi      = 2 * math.Pi
+	"github.com/dalloriam/synthia/core/constants"
 )
 
 // WaveShape represents the possible shapes of an oscillator wave.
@@ -71,9 +65,9 @@ type toneGenerator struct {
 }
 
 func (t *toneGenerator) incrementPhase(freq float64) {
-	t.phase += freq * twoPi / sampleRate
-	if t.phase > twoPi {
-		t.phase -= twoPi
+	t.phase += freq * constants.TwoPi / constants.SampleRate
+	if t.phase > constants.TwoPi {
+		t.phase -= constants.TwoPi
 	}
 }
 
@@ -96,11 +90,11 @@ func generateSquare(phase float64) float64 {
 }
 
 func generateSaw(phase float64) float64 {
-	return phase / twoPi
+	return ((phase / constants.TwoPi) * 2) - 1
 }
 
 func generateTriangle(phase float64) float64 {
-	at := phase / twoPi
+	at := phase / constants.TwoPi
 	if at > 0.5 {
 		at = 1.0 - at
 	}

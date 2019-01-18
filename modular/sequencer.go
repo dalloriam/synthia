@@ -2,6 +2,7 @@ package modular
 
 import (
 	"github.com/dalloriam/synthia/core"
+	"github.com/dalloriam/synthia/core/constants"
 )
 
 // A Sequencer loops through a frequency sequence at a pace dictated by the clock
@@ -16,7 +17,8 @@ type Sequencer struct {
 	PitchSequence []float64
 	GateSequence  []float64
 
-	lastStepIdx int
+	currentStep int // Current step stores the current step in the sequence.
+	tickCounter int // Pulse counter counts the number of clock pulses since the last step.
 }
 
 // NewSequencer returns a sequencer instance.
@@ -27,30 +29,43 @@ func NewSequencer() *Sequencer {
 		BeatsPerStep:  core.NewKnob(0.5),
 		Gate:          NewGate(),
 		Trigger:       NewTrigger(),
-		lastStepIdx:   -1,
+
+		currentStep: 0,
+		tickCounter: 0,
+	}
+}
+
+func (s *Sequencer) incrementStep() {
+	if s.currentStep+1 >= len(s.PitchSequence) {
+		s.currentStep = 0
+	} else {
+		s.currentStep++
 	}
 }
 
 // Stream returns the current sequence frequency.
 func (s *Sequencer) Stream() float64 {
-	ticksPerStep := float64(clockTicksPerBeat) * s.BeatsPerStep.Stream()
-
+	ticksPerStep := int(constants.ClockTicksPerBeat * s.BeatsPerStep.Stream())
 	currentClock := s.Clock.Stream()
 
-	stepIdx := int(currentClock/ticksPerStep) % len(s.PitchSequence)
+	if currentClock == 1 {
+		s.tickCounter++
+	}
 
-	percentageToNextStep := float64(int(currentClock)%int(ticksPerStep)) / ticksPerStep
-	gateSequenceValue := s.GateSequence[stepIdx]
+	if s.tickCounter >= ticksPerStep {
+		s.tickCounter = 0
+		s.Trigger.ShouldTrigger = true
+		s.incrementStep()
+	}
+
+	percentageToNextStep := float64(s.tickCounter) / float64(ticksPerStep)
+	gateSequenceValue := s.GateSequence[s.currentStep]
+
 	if percentageToNextStep > gateSequenceValue {
 		s.Gate.Opened = false
 	} else {
 		s.Gate.Opened = true
 	}
 
-	if stepIdx != s.lastStepIdx {
-		s.lastStepIdx = stepIdx
-		s.Trigger.ShouldTrigger = true
-	}
-
-	return s.PitchSequence[stepIdx]
+	return s.PitchSequence[s.currentStep]
 }
