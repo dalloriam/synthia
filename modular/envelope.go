@@ -26,6 +26,8 @@ type Envelope struct {
 	currentStage stage
 	lastOutValue float64
 
+	lastSustain float64 // Buffer for sustain value to preserve 1:1 sample ratio
+
 	// Trigger info
 	lastTrigger    float64
 	currentTrigger float64
@@ -48,10 +50,12 @@ func NewEnvelope() *Envelope {
 		currentTrigger: 0,
 
 		CurveRatio: core.NewKnob(0.01),
-		Attack:     core.NewKnob(50),
+		Attack:     core.NewKnob(0.5),
 		Decay:      core.NewKnob(50),
 		Sustain:    core.NewKnob(0.5),
 		Release:    core.NewKnob(50),
+
+		lastSustain: 0,
 
 		base:       0,
 		multiplier: 0,
@@ -62,34 +66,50 @@ func (e *Envelope) msToSamples(msCount float64) float64 {
 	return msCount * constants.SampleRate * 0.001
 }
 
-func (e *Envelope) off() float64 {
-	if e.lastTrigger <= 0 && e.currentTrigger > 0 {
-		// Switch to attack state
+func (e *Envelope) updateBaseMult() {
+	switch e.currentStage {
+	case StageAttack:
 		e.base, e.multiplier = computeSlope(
 			e.CurveRatio.Stream(),
 			e.msToSamples(e.Attack.Stream()),
 			1,
 			false,
 		)
-		e.currentStage = StageAttack
-	}
-	return 0
-}
-
-func (e *Envelope) attack() float64 {
-	val := e.base + e.multiplier*e.lastOutValue
-
-	if val >= 1 {
-		// Switch to decay state
+	case StageDecay:
 		ratio := e.CurveRatio.Stream()
 		decay := e.msToSamples(e.Decay.Stream())
 		sustain := e.msToSamples(e.Sustain.Stream())
+		e.lastSustain = sustain
 		e.base, e.multiplier = computeSlope(
 			ratio,
 			decay,
 			sustain,
 			true,
 		)
+	case StageRelease:
+		e.base, e.multiplier = computeSlope(
+			e.CurveRatio.Stream(),
+			e.msToSamples(e.Release.Stream()),
+			0,
+			true,
+		)
+	}
+}
+
+func (e *Envelope) off() float64 {
+	if e.lastTrigger <= 0 && e.currentTrigger > 0 {
+		// Switch to attack state
+		e.currentStage = StageAttack
+	}
+	return 0
+}
+
+func (e *Envelope) attack() float64 {
+	e.updateBaseMult()
+	val := e.base + e.multiplier*e.lastOutValue
+
+	if val >= 1 {
+		// Switch to decay state
 		e.currentStage = StageDecay
 	}
 
@@ -97,21 +117,16 @@ func (e *Envelope) attack() float64 {
 }
 
 func (e *Envelope) decay() float64 {
+	e.updateBaseMult()
 	val := e.base + e.multiplier*e.lastOutValue
 
-	if val <= e.msToSamples(e.Sustain.Stream()) {
+	if val <= e.msToSamples(e.lastSustain) {
 		// Switch to release or hold (depending if still triggered)
 		if e.currentTrigger > 0 {
 			// Hold
 			e.currentStage = StageSustain
 		} else {
 			// Release
-			e.base, e.multiplier = computeSlope(
-				e.CurveRatio.Stream(),
-				e.msToSamples(e.Release.Stream()),
-				0,
-				true,
-			)
 			e.currentStage = StageRelease
 		}
 	}
@@ -120,28 +135,16 @@ func (e *Envelope) decay() float64 {
 }
 
 func (e *Envelope) sustain() float64 {
+	e.updateBaseMult()
 	if e.currentTrigger <= 0 {
-		// Switch to release state
-		e.base, e.multiplier = computeSlope(
-			e.CurveRatio.Stream(),
-			e.msToSamples(e.Release.Stream()),
-			0,
-			true,
-		)
 		e.currentStage = StageRelease
 	}
 	return e.lastOutValue
 }
 
 func (e *Envelope) release() float64 {
+	e.updateBaseMult()
 	if e.lastTrigger <= 0 && e.currentTrigger > 0 {
-		// Switch to attack state
-		e.base, e.multiplier = computeSlope(
-			e.CurveRatio.Stream(),
-			e.msToSamples(e.Attack.Stream()),
-			1,
-			false,
-		)
 		e.currentStage = StageAttack
 	}
 

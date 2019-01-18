@@ -38,7 +38,7 @@ func (f *Filter) Stream() float64 {
 	if f.Input == nil {
 		return 0
 	}
-	g := tan((f.Cutoff.Stream() * 10 / constants.SampleRate) * math.Pi)
+	g := tan((f.Cutoff.Stream() / constants.SampleRate) * math.Pi)
 	k := 1 / q
 
 	a1 := 1 / (1 + g*(g+k))

@@ -11,10 +11,10 @@ type Clock struct {
 	position int
 }
 
-// NewClock returns a clock initialized with a tempo of 60bpm and a tick rate of 96 ticks / beat.
+// NewClock returns a clock initialized with a tempo of 120bpm and a tick rate of 96 ticks / beat.
 func NewClock() *Clock {
 	return &Clock{
-		Tempo:    core.NewKnob(60),
+		Tempo:    core.NewKnob(120),
 		position: 0,
 	}
 }
