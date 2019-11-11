@@ -19,7 +19,6 @@ func NewPortaudioBackend(bufferSize, inputDevice, outputDevice int) (*PortaudioB
 	if err != nil {
 		return nil, err
 	}
-
 	// TODO: Detect devices properly
 	inDevice, outDevice := devices[inputDevice], devices[outputDevice]
 

@@ -6,6 +6,7 @@ type Synthia struct {
 	chunkSize  int
 	Mixer      *Mixer
 	output     audioBackend
+	alloc      *allocationPool
 }
 
 type audioBackend interface {
@@ -22,6 +23,7 @@ func NewSynth(channelCount, bufferSize int, output audioBackend) *Synthia {
 		chunkSize:  int(float64(output.FrameSize()) / float64(bufferSize)),
 		Mixer:      m,
 		output:     output,
+		alloc:      newAllocationPool(bufferSize),
 	}
 
 	err := output.Start(synth.processBuffer)
@@ -34,8 +36,10 @@ func NewSynth(channelCount, bufferSize int, output audioBackend) *Synthia {
 }
 
 func (s *Synthia) processBuffer(in []float32, out [][]float32) {
-	rightBuf := make([]float64, s.bufferSize)
-	leftBuf := make([]float64, s.bufferSize)
+	rightBuf := s.alloc.Get()
+	leftBuf := s.alloc.Get()
+	defer s.alloc.Put(rightBuf)
+	defer s.alloc.Put(leftBuf)
 
 	s.Mixer.Stream(leftBuf, rightBuf)
 

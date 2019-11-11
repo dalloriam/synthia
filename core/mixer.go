@@ -7,7 +7,6 @@ type Mixer struct {
 
 // NewMixer returns a new mixer with all of its channels already initialized
 func NewMixer(nbOfChannels int) *Mixer {
-
 	chans := make([]*MixerChannel, nbOfChannels)
 	for i := 0; i < nbOfChannels; i++ {
 		chans[i] = NewMixerChannel()

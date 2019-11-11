@@ -56,8 +56,19 @@ func buildModule(def ModuleDef) (interface{}, error) {
 		m = modular.NewSequencer()
 	case "VCA":
 		m = modular.NewVCA()
+	case "LFO":
+		m = modular.NewLFO()
 	default:
 		return nil, fmt.Errorf("unknown module type: %s", moduleType)
+	}
+
+	for k, v := range def {
+		if x, ok := v.(string); !ok || (!strings.HasPrefix(x, "@") && !strings.HasPrefix(k, "_")) {
+			fmt.Println("Patchable field: ", k)
+			targetField := reflect.ValueOf(m).Elem().FieldByName(k)
+			targetVal := reflect.ValueOf(v)
+			patchSingleModule(targetField, targetVal)
+		}
 	}
 	fmt.Println("OK.")
 	return m, nil
@@ -90,7 +101,11 @@ func buildAllModules(patch PatchDefinition) (map[string]interface{}, error) {
 
 func patchSingleModule(targetField, destObject reflect.Value) {
 	if knob, ok := targetField.Interface().(*core.Knob); ok {
-		knob.Line = destObject.Interface().(core.Signal)
+		if signal, sOk := destObject.Interface().(core.Signal); sOk {
+			knob.Line = signal
+		} else if knobVal, iOk := destObject.Interface().(float64); iOk {
+			knob.SetValue(knobVal)
+		}
 	} else {
 		targetField.Set(destObject)
 	}
